@@ -155,4 +155,38 @@ public class SetFeeTest extends AbstractJsonTest {
 
     assertThat(redeserialized).isEqualTo(expected);
   }
+
+  @Test
+  public void testJsonWithUnknownFields() throws JsonProcessingException {
+    SetFee expected = SetFee.builder()
+      .account(Address.of("rrrrrrrrrrrrrrrrrrrrrhoLvTp"))
+      .fee(XrpCurrencyAmount.ofDrops(0))
+      .sequence(UnsignedInteger.valueOf(0))
+      .baseFeeDrops(XrpCurrencyAmount.ofDrops(10))
+      .reserveBaseDrops(XrpCurrencyAmount.ofDrops(10000000))
+      .reserveIncrementDrops(XrpCurrencyAmount.ofDrops(2000000))
+      .ledgerSequence(Optional.of(LedgerIndex.of(UnsignedInteger.valueOf(66462465))))
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = "{\n" +
+      "    \"Foo\" : \"Bar\",\n" +
+      "    \"Account\": \"rrrrrrrrrrrrrrrrrrrrrhoLvTp\",\n" +
+      "    \"BaseFeeDrops\": \"10\",\n" +
+      "    \"Fee\": \"0\",\n" +
+      "    \"LedgerSequence\": 66462465,\n" +
+      "    \"ReserveBaseDrops\": \"10000000\",\n" +
+      "    \"ReserveIncrementDrops\": \"2000000\",\n" +
+      "    \"Sequence\": 0,\n" +
+      "    \"SigningPubKey\": \"\",\n" +
+      "    \"TransactionType\": \"SetFee\"}";
+
+    Transaction actual = objectMapper.readValue(json, Transaction.class);
+    assertThat(actual).isEqualTo(expected);
+
+    String reserialized = objectMapper.writeValueAsString(actual);
+    Transaction redeserialized = objectMapper.readValue(reserialized, Transaction.class);
+
+    assertThat(redeserialized).isEqualTo(expected);
+  }
 }

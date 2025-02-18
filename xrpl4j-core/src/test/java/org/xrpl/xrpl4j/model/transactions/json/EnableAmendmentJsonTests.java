@@ -56,4 +56,28 @@ public class EnableAmendmentJsonTests extends AbstractJsonTest {
 
     assertCanSerializeAndDeserialize(enableAmendment, json);
   }
+
+  @Test
+  public void testJsonWithUnknownFields() throws JsonProcessingException, JSONException {
+    EnableAmendment enableAmendment = EnableAmendment.builder()
+      .account(Address.of("rrrrrrrrrrrrrrrrrrrrrhoLvTp"))
+      .fee(XrpCurrencyAmount.ofDrops(12))
+      .sequence(UnsignedInteger.valueOf(2470665))
+      .amendment(Hash256.of("42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE"))
+      .ledgerSequence(Optional.of(LedgerIndex.of(UnsignedInteger.valueOf(67850752))))
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = "{" +
+      "\"Foo\" : \"Bar\",\n" +
+      "\"Account\":\"rrrrrrrrrrrrrrrrrrrrrhoLvTp\"," +
+      "\"Fee\":\"12\"," +
+      "\"LedgerSequence\":67850752," +
+      "\"Sequence\":2470665," +
+      "\"SigningPubKey\":\"\"," +
+      "\"TransactionType\":\"EnableAmendment\"," +
+      "\"Amendment\":\"42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE\"}";
+
+    assertCanSerializeAndDeserialize(enableAmendment, json);
+  }
 }

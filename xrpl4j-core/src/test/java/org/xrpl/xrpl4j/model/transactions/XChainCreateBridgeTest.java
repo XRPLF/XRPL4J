@@ -103,6 +103,38 @@ class XChainCreateBridgeTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(createBridge, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    XChainCreateBridge createBridge = baseBuilder()
+      .minAccountCreateAmount(XrpCurrencyAmount.ofDrops(1000000))
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = String.format("\n" +
+      "{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"TransactionType\": \"XChainCreateBridge\",\n" +
+      "  \"Account\": \"rhWQzvdmhf5vFS35vtKUSUwNZHGT53qQsg\",\n" +
+      "  \"XChainBridge\": {\n" +
+      "    \"LockingChainDoor\": \"rhWQzvdmhf5vFS35vtKUSUwNZHGT53qQsg\",\n" +
+      "    \"LockingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    },\n" +
+      "    \"IssuingChainDoor\": \"rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh\",\n" +
+      "    \"IssuingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    }\n" +
+      "  },\n" +
+      "  \"SignatureReward\": \"200\",\n" +
+      "  \"MinAccountCreateAmount\": \"1000000\",\n" +
+      "  \"Fee\": \"10\",\n" +
+      "  \"Sequence\": 1,\n" +
+      "  \"SigningPubKey\": %s\n" +
+      "}", ED_PUBLIC_KEY.base16Value());
+
+    assertCanSerializeAndDeserialize(createBridge, json);
+  }
+
   private ImmutableXChainCreateBridge.Builder baseBuilder() {
     return XChainCreateBridge.builder()
       .fee(XrpCurrencyAmount.ofDrops(10))

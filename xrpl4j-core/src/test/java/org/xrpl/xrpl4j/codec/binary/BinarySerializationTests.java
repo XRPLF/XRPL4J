@@ -37,6 +37,8 @@ import org.xrpl.xrpl4j.codec.binary.XrplBinaryCodec;
 import org.xrpl.xrpl4j.crypto.keys.PublicKey;
 import org.xrpl.xrpl4j.crypto.signing.Signature;
 import org.xrpl.xrpl4j.model.flags.AccountSetTransactionFlags;
+import org.xrpl.xrpl4j.model.flags.AmmDepositFlags;
+import org.xrpl.xrpl4j.model.flags.AmmWithdrawFlags;
 import org.xrpl.xrpl4j.model.flags.OfferCreateFlags;
 import org.xrpl.xrpl4j.model.flags.PaymentChannelClaimFlags;
 import org.xrpl.xrpl4j.model.flags.PaymentFlags;
@@ -45,6 +47,8 @@ import org.xrpl.xrpl4j.model.flags.TransactionFlags;
 import org.xrpl.xrpl4j.model.flags.TrustSetFlags;
 import org.xrpl.xrpl4j.model.flags.XChainModifyBridgeFlags;
 import org.xrpl.xrpl4j.model.jackson.ObjectMapperFactory;
+import org.xrpl.xrpl4j.model.ledger.AuthAccount;
+import org.xrpl.xrpl4j.model.ledger.AuthAccountWrapper;
 import org.xrpl.xrpl4j.model.ledger.Issue;
 import org.xrpl.xrpl4j.model.ledger.RippleStateObject;
 import org.xrpl.xrpl4j.model.ledger.SignerEntry;
@@ -52,6 +56,12 @@ import org.xrpl.xrpl4j.model.ledger.SignerEntryWrapper;
 import org.xrpl.xrpl4j.model.transactions.AccountDelete;
 import org.xrpl.xrpl4j.model.transactions.AccountSet;
 import org.xrpl.xrpl4j.model.transactions.Address;
+import org.xrpl.xrpl4j.model.transactions.AmmBid;
+import org.xrpl.xrpl4j.model.transactions.AmmCreate;
+import org.xrpl.xrpl4j.model.transactions.AmmDelete;
+import org.xrpl.xrpl4j.model.transactions.AmmDeposit;
+import org.xrpl.xrpl4j.model.transactions.AmmVote;
+import org.xrpl.xrpl4j.model.transactions.AmmWithdraw;
 import org.xrpl.xrpl4j.model.transactions.AssetPrice;
 import org.xrpl.xrpl4j.model.transactions.CheckCancel;
 import org.xrpl.xrpl4j.model.transactions.CheckCash;
@@ -67,6 +77,10 @@ import org.xrpl.xrpl4j.model.transactions.EscrowCancel;
 import org.xrpl.xrpl4j.model.transactions.EscrowCreate;
 import org.xrpl.xrpl4j.model.transactions.EscrowFinish;
 import org.xrpl.xrpl4j.model.transactions.Hash256;
+import org.xrpl.xrpl4j.model.transactions.ImmutableAmmBid;
+import org.xrpl.xrpl4j.model.transactions.ImmutableAmmCreate;
+import org.xrpl.xrpl4j.model.transactions.ImmutableAmmDelete;
+import org.xrpl.xrpl4j.model.transactions.ImmutableAmmDeposit;
 import org.xrpl.xrpl4j.model.transactions.ImmutableDidDelete;
 import org.xrpl.xrpl4j.model.transactions.ImmutableDidSet;
 import org.xrpl.xrpl4j.model.transactions.ImmutableOracleDelete;
@@ -92,6 +106,7 @@ import org.xrpl.xrpl4j.model.transactions.PriceData;
 import org.xrpl.xrpl4j.model.transactions.PriceDataWrapper;
 import org.xrpl.xrpl4j.model.transactions.SetRegularKey;
 import org.xrpl.xrpl4j.model.transactions.SignerListSet;
+import org.xrpl.xrpl4j.model.transactions.TradingFee;
 import org.xrpl.xrpl4j.model.transactions.Transaction;
 import org.xrpl.xrpl4j.model.transactions.TrustSet;
 import org.xrpl.xrpl4j.model.transactions.XChainAccountCreateCommit;
@@ -2254,6 +2269,270 @@ public class BinarySerializationTests {
       "D21E8059F689827F5BF2AD5CBC138A3427A04C12B004C9BE9BBB22A7781141AFFBE9553C7325305491B100D02E6BED8CE6BA5";
 
     assertSerializesAndDeserializes(oracleDelete, expectedBinary);
+  }
+
+  @Test
+  void serializeAmmWithdraw() throws JsonProcessingException {
+    AmmWithdraw ammWithdraw = AmmWithdraw.builder()
+      .account(Address.of("rpgAg9CgNV9MYUECHTx26h1PEARhreuap7"))
+      .fee(XrpCurrencyAmount.ofDrops(10))
+      .sequence(UnsignedInteger.ONE)
+      .signingPublicKey(
+        PublicKey.fromBase16EncodedPublicKey("02B4A8F64B97151FA303F86417751B7EA5AF1D0014FCC110C234D04AF15F3F654A")
+      )
+      .flags(AmmWithdrawFlags.LP_TOKEN)
+      .asset(Issue.builder()
+        .currency("4755534400000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .asset2(Issue.builder()
+        .currency("524C555344000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .lpTokensIn(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .amount(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .amount2(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .effectivePrice(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .build();
+
+    String expectedBinary = "1200252200010000240000000161D5071AFD498D00000000000000000000000000004C50540000" +
+      "000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C568400000000000000A6BD5071AFD498D0000000000000000000000" +
+      "0000004C50540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5601AD5071AFD498D0000000000000000000000" +
+      "0000004C50540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5601BD5071AFD498D0000000000000000000000" +
+      "0000004C50540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5732102B4A8F64B97151FA303F86417751B7EA5" +
+      "AF1D0014FCC110C234D04AF15F3F654A81141285FD19EDD3FB7146B87251AFB0E17742B37271031847555344000000000000" +
+      "00000000000000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C50418524C55534400000000000000000000000000" +
+      "0000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5";
+    assertSerializesAndDeserializes(ammWithdraw, expectedBinary);
+  }
+
+  @Test
+  void serializeAmmBid() throws JsonProcessingException {
+    AmmBid ammBid = AmmBid.builder()
+      .account(Address.of("rpgAg9CgNV9MYUECHTx26h1PEARhreuap7"))
+      .fee(XrpCurrencyAmount.ofDrops(10))
+      .sequence(UnsignedInteger.ONE)
+      .signingPublicKey(
+        PublicKey.fromBase16EncodedPublicKey("02B4A8F64B97151FA303F86417751B7EA5AF1D0014FCC110C234D04AF15F3F654A"))
+      .asset(Issue.builder()
+        .currency("4755534400000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .asset2(Issue.builder()
+        .currency("524C555344000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .bidMin(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .bidMax(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .addAuthAccounts(
+        AuthAccountWrapper.of(AuthAccount.of(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy")))
+      )
+      .build();
+
+    String expectedBinary = "120027240000000168400000000000000A6CD5071AFD498D00000000000000000000000000004C5" +
+      "0540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C56DD5071AFD498D00000000000000000000000000004C5054" +
+      "0000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5732102B4A8F64B97151FA303F86417751B7EA5AF1D0014FCC11" +
+      "0C234D04AF15F3F654A81141285FD19EDD3FB7146B87251AFB0E17742B37271F019E01B8114F78AD4FDA66653106AE45EE5FE" +
+      "683C457E6BA9C5E1F103184755534400000000000000000000000000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9" +
+      "C50418524C555344000000000000000000000000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5";
+
+    assertSerializesAndDeserializes(ammBid, expectedBinary);
+  }
+
+  @Test
+  void serializeAmmCreate() throws JsonProcessingException {
+    AmmCreate ammCreate = AmmCreate.builder()
+      .account(Address.of("rpgAg9CgNV9MYUECHTx26h1PEARhreuap7"))
+      .fee(XrpCurrencyAmount.ofDrops(10))
+      .sequence(UnsignedInteger.ONE)
+      .signingPublicKey(
+        PublicKey.fromBase16EncodedPublicKey("02B4A8F64B97151FA303F86417751B7EA5AF1D0014FCC110C234D04AF15F3F654A")
+      )
+      .amount(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .amount2(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .tradingFee(TradingFee.of(UnsignedInteger.ONE))
+      .build();
+
+    String expectedBinary = "120023150001240000000161D5071AFD498D00000000000000000000000000004C505400000000" +
+      "00F78AD4FDA66653106AE45EE5FE683C457E6BA9C568400000000000000A6BD5071AFD498D00000000000000000000000000" +
+      "004C50540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5732102B4A8F64B97151FA303F86417751B7EA5AF1D" +
+      "0014FCC110C234D04AF15F3F654A81141285FD19EDD3FB7146B87251AFB0E17742B37271";
+
+    assertSerializesAndDeserializes(ammCreate, expectedBinary);
+  }
+
+  @Test
+  void serializeAmmDelete() throws JsonProcessingException {
+    AmmDelete ammDelete = AmmDelete.builder()
+      .account(Address.of("rpgAg9CgNV9MYUECHTx26h1PEARhreuap7"))
+      .fee(XrpCurrencyAmount.ofDrops(10))
+      .sequence(UnsignedInteger.ONE)
+      .signingPublicKey(
+        PublicKey.fromBase16EncodedPublicKey("02B4A8F64B97151FA303F86417751B7EA5AF1D0014FCC110C234D04AF15F3F654A")
+      )
+      .asset(Issue.builder()
+        .currency("4755534400000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .asset2(Issue.builder()
+        .currency("524C555344000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .build();
+
+    String expectedBinary = "120028240000000168400000000000000A732102B4A8F64B97151FA303F86417751B7EA5AF1" +
+      "D0014FCC110C234D04AF15F3F654A81141285FD19EDD3FB7146B87251AFB0E17742B37271031847555344000000000000" +
+      "00000000000000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C50418524C5553440000000000000000000000" +
+      "00000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5";
+
+    assertSerializesAndDeserializes(ammDelete, expectedBinary);
+  }
+
+  @Test
+  void serializeAmmDeposit() throws JsonProcessingException {
+    AmmDeposit ammDeposit = AmmDeposit.builder()
+      .account(Address.of("rpgAg9CgNV9MYUECHTx26h1PEARhreuap7"))
+      .fee(XrpCurrencyAmount.ofDrops(10))
+      .sequence(UnsignedInteger.ONE)
+      .signingPublicKey(
+        PublicKey.fromBase16EncodedPublicKey("02B4A8F64B97151FA303F86417751B7EA5AF1D0014FCC110C234D04AF15F3F654A")
+      )
+      .flags(AmmDepositFlags.SINGLE_ASSET)
+      .asset(Issue.builder()
+        .currency("4755534400000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .asset2(Issue.builder()
+        .currency("524C555344000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .amount(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .amount2(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .effectivePrice(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .lpTokenOut(
+        IssuedCurrencyAmount.builder()
+          .value("200")
+          .currency("LPT")
+          .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+          .build()
+      )
+      .tradingFee(TradingFee.ofPercent(BigDecimal.ONE))
+      .build();
+
+    String expectedBinary = "1200241503E82200080000240000000161D5071AFD498D00000000000000000000000000004C50" +
+      "540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C568400000000000000A6BD5071AFD498D0000000000000000" +
+      "0000000000004C50540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C56019D5071AFD498D0000000000000000" +
+      "0000000000004C50540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5601BD5071AFD498D0000000000000000" +
+      "0000000000004C50540000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5732102B4A8F64B97151FA303F8641775" +
+      "1B7EA5AF1D0014FCC110C234D04AF15F3F654A81141285FD19EDD3FB7146B87251AFB0E17742B37271031847555344000000" +
+      "00000000000000000000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C50418524C55534400000000000000000000" +
+      "0000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5";
+
+    assertSerializesAndDeserializes(ammDeposit, expectedBinary);
+  }
+
+  @Test
+  void serializeAmmVote() throws JsonProcessingException {
+    AmmVote ammVote = AmmVote.builder()
+      .account(Address.of("rpgAg9CgNV9MYUECHTx26h1PEARhreuap7"))
+      .fee(XrpCurrencyAmount.ofDrops(10))
+      .sequence(UnsignedInteger.ONE)
+      .signingPublicKey(
+        PublicKey.fromBase16EncodedPublicKey("02B4A8F64B97151FA303F86417751B7EA5AF1D0014FCC110C234D04AF15F3F654A")
+      )
+      .asset(Issue.builder()
+        .currency("4755534400000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .asset2(Issue.builder()
+        .currency("524C555344000000000000000000000000000000")
+        .issuer(Address.of("rPZtDb6ZHtfYzMmzyUGvehoi2vYhrNAPhy"))
+        .build()
+      )
+      .tradingFee(TradingFee.ofPercent(BigDecimal.ONE))
+      .build();
+
+    String expectedBinary = "1200261503E8240000000168400000000000000A732102B4A8F64B97151FA303F86417751B7" +
+      "EA5AF1D0014FCC110C234D04AF15F3F654A81141285FD19EDD3FB7146B87251AFB0E17742B37271031847555344000000" +
+      "00000000000000000000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C50418524C55534400000000000000000" +
+      "0000000000000F78AD4FDA66653106AE45EE5FE683C457E6BA9C5";
+
+    assertSerializesAndDeserializes(ammVote, expectedBinary);
   }
 
   private <T extends Transaction> void assertSerializesAndDeserializes(

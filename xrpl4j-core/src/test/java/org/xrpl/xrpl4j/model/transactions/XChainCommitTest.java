@@ -139,6 +139,47 @@ class XChainCommitTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(commit, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    XChainCommit commit = baseBuilder()
+      .amount(
+        IssuedCurrencyAmount.builder()
+          .currency("CNY")
+          .issuer(Address.of("r45dBj4S3VvMMYXxr9vHX4Z4Ma6ifPMCkK"))
+          .value("5000")
+          .build()
+      )
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = String.format("{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"Account\": \"rMTi57fNy2UkUb4RcdoUeJm7gjxVQvxzUo\",\n" +
+      "  \"TransactionType\": \"XChainCommit\",\n" +
+      "  \"XChainBridge\": {\n" +
+      "    \"LockingChainDoor\": \"rMAXACCrp3Y8PpswXcg3bKggHX76V3F8M4\",\n" +
+      "    \"LockingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    },\n" +
+      "    \"IssuingChainDoor\": \"rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh\",\n" +
+      "    \"IssuingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    }\n" +
+      "  },\n" +
+      "  \"Amount\": {" +
+      "      \"currency\": \"CNY\",\n" +
+      "      \"value\": \"5000\",\n" +
+      "      \"issuer\": \"r45dBj4S3VvMMYXxr9vHX4Z4Ma6ifPMCkK\"\n" +
+      "  },\n" +
+      "  \"Fee\": \"10\",\n" +
+      "  \"Sequence\": 1,\n" +
+      "  \"SigningPubKey\": %s,\n" +
+      "  \"XChainClaimID\": \"13f\"\n" +
+      "}", ED_PUBLIC_KEY.base16Value());
+
+    assertCanSerializeAndDeserialize(commit, json);
+  }
+
   private ImmutableXChainCommit.Builder baseBuilder() {
     return XChainCommit.builder()
       .fee(XrpCurrencyAmount.ofDrops(10))

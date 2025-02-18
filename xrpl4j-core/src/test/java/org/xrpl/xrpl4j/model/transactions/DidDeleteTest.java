@@ -62,6 +62,24 @@ class DidDeleteTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(transaction, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    DidDelete transaction = baseBuilder()
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = String.format("{\n" +
+      "    \"Foo\" : \"Bar\",\n" +
+      "    \"TransactionType\": \"DIDDelete\", \n" +
+      "    \"Account\": \"rp4pqYgrTAtdPHuZd1ZQWxrzx45jxYcZex\",\n" +
+      "    \"Fee\": \"12\",\n" +
+      "    \"Sequence\": 391,\n" +
+      "    \"SigningPubKey\":\"%s\"\n" +
+      "}", ED_PUBLIC_KEY.base16Value());
+
+    assertCanSerializeAndDeserialize(transaction, json);
+  }
+
   private ImmutableDidDelete.Builder baseBuilder() {
     return DidDelete.builder()
       .account(Address.of("rp4pqYgrTAtdPHuZd1ZQWxrzx45jxYcZex"))

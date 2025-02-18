@@ -82,6 +82,26 @@ class OracleSetTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(oracleSet, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    OracleSet oracleSet = baseBuilder()
+      .putUnknownFields("Foo", "Bar")
+      .build();
+    String json = "\n" +
+      "{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"TransactionType\": \"OracleSet\",\n" +
+      "  \"Account\": \"rp4pqYgrTAtdPHuZd1ZQWxrzx45jxYcZex\",\n" +
+      "  \"OracleDocumentID\": 1,\n" +
+      "  \"Fee\": \"12\",\n" +
+      "  \"Sequence\": 391,\n" +
+      "  \"SigningPubKey\": \"" + ED_PUBLIC_KEY_HEX + "\",\n" +
+      "  \"LastUpdateTime\": 1\n" +
+      "}";
+
+    assertCanSerializeAndDeserialize(oracleSet, json);
+  }
+
   private static ImmutableOracleSet.Builder baseBuilder() {
     return OracleSet.builder()
       .account(Address.of("rp4pqYgrTAtdPHuZd1ZQWxrzx45jxYcZex"))

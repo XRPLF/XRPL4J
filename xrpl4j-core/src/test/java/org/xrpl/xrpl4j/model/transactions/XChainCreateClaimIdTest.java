@@ -102,6 +102,37 @@ class XChainCreateClaimIdTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(claimId, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    XChainCreateClaimId claimId = baseBuilder()
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = String.format("\n" +
+      "{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"Account\": \"rahDmoXrtPdh7sUdrPjini3gcnTVYjbjjw\",\n" +
+      "  \"OtherChainSource\": \"rMTi57fNy2UkUb4RcdoUeJm7gjxVQvxzUo\",\n" +
+      "  \"TransactionType\": \"XChainCreateClaimID\",\n" +
+      "  \"SignatureReward\": \"100\",\n" +
+      "  \"XChainBridge\": {\n" +
+      "    \"LockingChainDoor\": \"rMAXACCrp3Y8PpswXcg3bKggHX76V3F8M4\",\n" +
+      "    \"LockingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    },\n" +
+      "    \"IssuingChainDoor\": \"rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh\",\n" +
+      "    \"IssuingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    }\n" +
+      "  },\n" +
+      "  \"Fee\": \"10\",\n" +
+      "  \"Sequence\": 1,\n" +
+      "  \"SigningPubKey\": %s\n" +
+      "}", ED_PUBLIC_KEY.base16Value());
+
+    assertCanSerializeAndDeserialize(claimId, json);
+  }
+
   private ImmutableXChainCreateClaimId.Builder baseBuilder() {
     return XChainCreateClaimId.builder()
       .fee(XrpCurrencyAmount.ofDrops(10))

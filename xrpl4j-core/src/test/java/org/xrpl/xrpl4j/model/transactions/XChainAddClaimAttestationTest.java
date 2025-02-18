@@ -236,4 +236,44 @@ class XChainAddClaimAttestationTest extends AbstractJsonTest {
       )
       .xChainClaimId(XChainClaimId.of(UnsignedLong.ONE));
   }
+
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    XChainAddClaimAttestation attestation = baseBuilder()
+      .wasLockingChainSend(false)
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = "{\n" +
+      "        \"Foo\" : \"Bar\",\n" +
+      "        \"Account\": \"rsqvD8WFFEBBv4nztpoW9YYXJ7eRzLrtc3\",\n" +
+      "        \"Amount\": \"10000000\",\n" +
+      "        \"AttestationRewardAccount\": \"rsqvD8WFFEBBv4nztpoW9YYXJ7eRzLrtc3\",\n" +
+      "        \"AttestationSignerAccount\": \"rsqvD8WFFEBBv4nztpoW9YYXJ7eRzLrtc3\",\n" +
+      "        \"Destination\": \"rJdTJRJZ6GXCCRaamHJgEqVzB7Zy4557Pi\",\n" +
+      "        \"Fee\": \"20\",\n" +
+      "        \"LastLedgerSequence\": 19,\n" +
+      "        \"OtherChainSource\": \"raFcdz1g8LWJDJWJE2ZKLRGdmUmsTyxaym\",\n" +
+      "        \"PublicKey\": \"ED7541DEC700470F54276C90C333A13CDBB5D341FD43C60CEA12170F6D6D4E1136\",\n" +
+      "        \"Sequence\": 9,\n" +
+      "        \"Signature\": \"7C175050B08000AD35EEB2D87E16CD3F95A0AEEBF2A049474275153D9D4DD44528FE99AA5" +
+      "0E71660A15B0B768E1B90E609BBD5DC7AFAFD45D9705D72D40EA10C\",\n" +
+      "        \"SigningPubKey\": \"ED0406B134786FE0751717226657F7BF8AFE96442C05D28ACEC66FB64852BA604C\",\n" +
+      "        \"TransactionType\": \"XChainAddClaimAttestation\",\n" +
+      "        \"WasLockingChainSend\": 0,\n" +
+      "        \"XChainBridge\": {\n" +
+      "          \"IssuingChainDoor\": \"rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh\",\n" +
+      "          \"IssuingChainIssue\": {\n" +
+      "            \"currency\": \"XRP\"\n" +
+      "          },\n" +
+      "          \"LockingChainDoor\": \"rDJVtEuDKr4rj1B3qtW7R5TVWdXV2DY7Qg\",\n" +
+      "          \"LockingChainIssue\": {\n" +
+      "            \"currency\": \"XRP\"\n" +
+      "          }\n" +
+      "        },\n" +
+      "        \"XChainClaimID\": \"1\"\n" +
+      "      }";
+
+    assertCanSerializeAndDeserialize(attestation, json);
+  }
 }

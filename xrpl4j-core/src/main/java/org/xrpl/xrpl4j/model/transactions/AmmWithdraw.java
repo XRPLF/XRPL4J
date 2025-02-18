@@ -96,7 +96,7 @@ public interface AmmWithdraw extends Transaction {
    *
    * @return An optionally present {@link IssuedCurrencyAmount}.
    */
-  @JsonProperty("LPTokensIn")
+  @JsonProperty("LPTokenIn")
   Optional<CurrencyAmount> lpTokensIn();
 
 }

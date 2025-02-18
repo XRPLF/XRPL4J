@@ -113,4 +113,32 @@ class DidSetTest extends AbstractJsonTest {
 
     assertCanSerializeAndDeserialize(transaction, json);
   }
+
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    DidSet transaction = DidSet.builder()
+      .account(Address.of("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"))
+      .fee(XrpCurrencyAmount.ofDrops(10))
+      .sequence(UnsignedInteger.valueOf(391))
+      .didDocument(DidDocument.of(""))
+      .uri(DidUri.of(""))
+      .data(DidData.of(""))
+      .signingPublicKey(ED_PUBLIC_KEY)
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = String.format("{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"TransactionType\": \"DIDSet\",\n" +
+      "  \"Account\": \"rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh\",\n" +
+      "  \"Fee\": \"10\",\n" +
+      "  \"Sequence\": 391,\n" +
+      "  \"DIDDocument\": \"\",\n" +
+      "  \"URI\": \"\",\n" +
+      "  \"Data\": \"\",\n" +
+      "  \"SigningPubKey\":\"%s\"\n" +
+      "}", ED_PUBLIC_KEY.base16Value());
+
+    assertCanSerializeAndDeserialize(transaction, json);
+  }
 }

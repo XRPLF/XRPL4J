@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.images.ImagePullPolicy;
+import org.testcontainers.images.PullPolicy;
 import org.xrpl.xrpl4j.client.JsonRpcClientErrorException;
 import org.xrpl.xrpl4j.client.XrplAdminClient;
 import org.xrpl.xrpl4j.client.XrplClient;
@@ -87,6 +89,7 @@ public class RippledContainer {
           cmd.withEntrypoint("/opt/ripple/bin/rippled"))
         .withCommand("-a --start --conf /config/rippled.cfg")
         .withExposedPorts(5005)
+        .withImagePullPolicy(PullPolicy.alwaysPull())
         .withClasspathResourceMapping("rippled",
           "/config",
           BindMode.READ_ONLY)

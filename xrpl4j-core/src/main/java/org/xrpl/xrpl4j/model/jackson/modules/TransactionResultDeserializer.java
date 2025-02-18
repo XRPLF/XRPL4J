@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedLong;
 import org.xrpl.xrpl4j.model.client.common.LedgerIndex;
@@ -37,6 +38,7 @@ import org.xrpl.xrpl4j.model.transactions.TransactionMetadata;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Custom deserializer for {@link TransactionResult}, which wraps the {@link Transaction} fields in the result JSON.
@@ -47,6 +49,10 @@ import java.util.Optional;
  * @param <T> The type of {@link Transaction} in the {@link TransactionResult}.
  */
 public class TransactionResultDeserializer<T extends Transaction> extends StdDeserializer<TransactionResult<T>> {
+
+  public static final Set<String> EXTRA_TRANSACTION_FIELDS = Sets.newHashSet(
+    "ledger_index", "date", "hash", "status", "validated", "meta", "metaData"
+  );
 
   /**
    * No-args constructor.
@@ -60,10 +66,6 @@ public class TransactionResultDeserializer<T extends Transaction> extends StdDes
     ObjectMapper objectMapper = (ObjectMapper) jsonParser.getCodec();
     ObjectNode objectNode = objectMapper.readTree(jsonParser);
 
-    JavaType javaType = objectMapper.getTypeFactory().constructType(new TypeReference<T>() {
-    });
-    T transaction = objectMapper.convertValue(objectNode, javaType);
-
     LedgerIndex ledgerIndex = objectNode.has("ledger_index") ?
         LedgerIndex.of(UnsignedInteger.valueOf(objectNode.get("ledger_index").asInt())) :
         null;
@@ -72,6 +74,15 @@ public class TransactionResultDeserializer<T extends Transaction> extends StdDes
     boolean validated = objectNode.has("validated") && objectNode.get("validated").asBoolean();
     Optional<TransactionMetadata> metadata = getTransactionMetadata(objectMapper, objectNode);
     UnsignedLong closeDate = objectNode.has("date") ? UnsignedLong.valueOf(objectNode.get("date").asLong()) : null;
+
+    // The Transaction is @JsonUnwrapped in TransactionResult, which means these fields
+    // get added to the Transaction.unknownFields Map. To prevent that, we simply remove them from the JSON, because
+    // they should only show up in AccountTransactionsTransaction
+    objectNode.remove(EXTRA_TRANSACTION_FIELDS);
+
+    JavaType javaType = objectMapper.getTypeFactory().constructType(new TypeReference<T>() {
+    });
+    T transaction = objectMapper.convertValue(objectNode, javaType);
 
     return TransactionResult.<T>builder()
       .transaction(transaction)

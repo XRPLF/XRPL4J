@@ -53,4 +53,29 @@ public class UnlModifyJsonTests  extends AbstractJsonTest {
 
     assertCanSerializeAndDeserialize(unlModify, json);
   }
+
+  @Test
+  public void testJsonWithUnknownFields() throws JsonProcessingException, JSONException {
+    UnlModify unlModify = UnlModify.builder()
+      .fee(XrpCurrencyAmount.ofDrops(12))
+      .sequence(UnsignedInteger.valueOf(2470665))
+      .ledgerSequence(LedgerIndex.of(UnsignedInteger.valueOf(67850752)))
+      .unlModifyValidator("EDB6FC8E803EE8EDC2793F1EC917B2EE41D35255618DEB91D3F9B1FC89B75D4539")
+      .unlModifyDisabling(UnsignedInteger.valueOf(1))
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = "{" +
+      "    \"Foo\" : \"Bar\",\n" +
+      "\"Account\":\"" + UnlModify.ACCOUNT_ZERO + "\"," +
+      "\"Fee\":\"12\"," +
+      "\"LedgerSequence\":67850752," +
+      "\"Sequence\":2470665," +
+      "\"SigningPubKey\":\"\"," +
+      "\"TransactionType\":\"UNLModify\"," +
+      "\"UNLModifyDisabling\":1," +
+      "\"UNLModifyValidator\":\"EDB6FC8E803EE8EDC2793F1EC917B2EE41D35255618DEB91D3F9B1FC89B75D4539\"}";
+
+    assertCanSerializeAndDeserialize(unlModify, json);
+  }
 }

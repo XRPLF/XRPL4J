@@ -127,6 +127,35 @@ class XChainModifyBridgeTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(modify, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    XChainModifyBridge modify = baseBuilder()
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = String.format("\n" +
+      "{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"TransactionType\": \"XChainModifyBridge\",\n" +
+      "  \"Account\": \"rhWQzvdmhf5vFS35vtKUSUwNZHGT53qQsg\",\n" +
+      "  \"XChainBridge\": {\n" +
+      "    \"LockingChainDoor\": \"rhWQzvdmhf5vFS35vtKUSUwNZHGT53qQsg\",\n" +
+      "    \"LockingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    },\n" +
+      "    \"IssuingChainDoor\": \"rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh\",\n" +
+      "    \"IssuingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    }\n" +
+      "  },\n" +
+      "  \"Fee\": \"10\",\n" +
+      "  \"Sequence\": 1,\n" +
+      "  \"SigningPubKey\": %s\n" +
+      "}", ED_PUBLIC_KEY.base16Value());
+
+    assertCanSerializeAndDeserialize(modify, json);
+  }
+
   private ImmutableXChainModifyBridge.Builder baseBuilder() {
     return XChainModifyBridge.builder()
       .fee(XrpCurrencyAmount.ofDrops(10))

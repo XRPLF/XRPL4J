@@ -1,7 +1,6 @@
 package org.xrpl.xrpl4j.model.transactions;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -113,6 +112,29 @@ class NegativeTransactionMetadataTest {
   }
 
   /**
+   * This test validates that the ledger 94084608 and all of its transactions and metadata are handled correctly, even
+   * in the presence of a `UnlModify` transaction that has an empty `Account`.
+   */
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "ledger-result-94084608.json" // <-- See https://github.com/XRPLF/xrpl4j/issues/590
+  })
+  void deserializeLedgerResultWithSpecialObjects(String ledgerResultFileName) throws IOException {
+    Objects.requireNonNull(ledgerResultFileName);
+
+    File jsonFile = new File(
+      "src/test/resources/special-object-ledgers/" + ledgerResultFileName
+    );
+
+    LedgerResult ledgerResult = objectMapper.readValue(jsonFile, LedgerResult.class);
+
+    ledgerResult.ledger().transactions().forEach(transactionResult -> {
+      assertThat(transactionResult.metadata().isPresent()).isTrue();
+      transactionResult.metadata().ifPresent(this::handleTransactionMetadata);
+    });
+  }
+
+  /**
    * This test validates that the ledger 87704323 and all of its transactions and metadata are handled correctly, even
    * in the presence of negative XRP or IOU amounts.
    */
@@ -144,9 +166,13 @@ class NegativeTransactionMetadataTest {
           } else if (ledgerEntryType.equals(MetaLedgerEntryType.RIPPLE_STATE)) {
             handleMetaLedgerObject((MetaRippleStateObject) createdNode.newFields());
           } else if (ledgerEntryType.equals(MetaLedgerEntryType.DIRECTORY_NODE)) {
-            logger.warn("Ignoring ledger entry type {}", ledgerEntryType);
+            logger.warn("Ignoring CreatedNode ledger entry type {}", ledgerEntryType);
+          } else if (ledgerEntryType.equals(MetaLedgerEntryType.NEGATIVE_UNL)) {
+            logger.warn(
+              "Ignoring DeletedNode ledger entry type {}. See https://github.com/XRPLF/xrpl4j/issues/16",
+              ledgerEntryType);
           } else {
-            throw new RuntimeException("Unhandled ledger entry type: " + ledgerEntryType);
+            throw new RuntimeException("Unhandled CreatedNode ledger entry type: " + ledgerEntryType);
           }
         },
         (modifiedNode) -> {
@@ -159,8 +185,19 @@ class NegativeTransactionMetadataTest {
                 handleMetaLedgerObject((MetaAccountRootObject) metaLedgerObject);
               } else if (ledgerEntryType.equals(MetaLedgerEntryType.RIPPLE_STATE)) {
                 handleMetaLedgerObject((MetaRippleStateObject) metaLedgerObject);
+              } else if (ledgerEntryType.equals(MetaLedgerEntryType.DIRECTORY_NODE)) {
+                logger.warn("Ignoring ModifiedNode ledger entry type {}", ledgerEntryType);
+              } else if (ledgerEntryType.equals(MetaLedgerEntryType.NEGATIVE_UNL)) {
+                logger.warn(
+                  "Ignoring DeletedNode ledger entry type {}. See https://github.com/XRPLF/xrpl4j/issues/16",
+                  ledgerEntryType);
+              } else if (ledgerEntryType.equals(MetaLedgerEntryType.AMM)) {
+                logger.warn(
+                  "Ignoring DeletedNode ledger entry type {}. See https://github.com/XRPLF/xrpl4j/issues/591",
+                  ledgerEntryType);
               } else {
-                throw new RuntimeException("Unhandled ledger entry type: " + ledgerEntryType);
+                throw new RuntimeException(
+                  "Unhandled ModifiedNode PreviousFields ledger entry type: " + ledgerEntryType);
               }
             });
 
@@ -173,10 +210,15 @@ class NegativeTransactionMetadataTest {
                 handleMetaLedgerObject((MetaAccountRootObject) metaLedgerObject);
               } else if (ledgerEntryType.equals(MetaLedgerEntryType.RIPPLE_STATE)) {
                 handleMetaLedgerObject((MetaRippleStateObject) metaLedgerObject);
-              } else if (ledgerEntryType.equals(MetaLedgerEntryType.DIRECTORY_NODE)) {
-                logger.warn("Ignoring ledger entry type {}", ledgerEntryType);
+              } else if (
+                ledgerEntryType.equals(MetaLedgerEntryType.DIRECTORY_NODE)) {
+                logger.warn("Ignoring ModifiedNode ledger entry type {}", ledgerEntryType);
+              } else if (ledgerEntryType.equals(MetaLedgerEntryType.AMM)) {
+                logger.warn(
+                  "Ignoring ModifiedNode ledger entry type {}. See See https://github.com/XRPLF/xrpl4j/issues/591",
+                  ledgerEntryType);
               } else {
-                throw new RuntimeException("Unhandled ledger entry type: " + ledgerEntryType);
+                throw new RuntimeException("Unhandled ModifiedNode FinalFields ledger entry type: " + ledgerEntryType);
               }
             });
         },
@@ -191,7 +233,8 @@ class NegativeTransactionMetadataTest {
               } else if (ledgerEntryType.equals(MetaLedgerEntryType.RIPPLE_STATE)) {
                 handleMetaLedgerObject((MetaRippleStateObject) metaLedgerObject);
               } else {
-                throw new RuntimeException("Unhandled ledger entry type: " + ledgerEntryType);
+                throw new RuntimeException(
+                  "Unhandled DeletedNode PreviousFields ledger entry type: " + ledgerEntryType);
               }
             });
 
@@ -204,14 +247,15 @@ class NegativeTransactionMetadataTest {
           } else if (ledgerEntryType.equals(MetaLedgerEntryType.RIPPLE_STATE)) {
             handleMetaLedgerObject((MetaRippleStateObject) finalFields);
           } else if (ledgerEntryType.equals(MetaLedgerEntryType.TICKET)) {
-            logger.info("Ignoring ledger entry type {} because it has no currency values for negative checking",
-              ledgerEntryType);
+            logger.info(
+              "Ignoring ledger entry type {} because it has no currency values for negative checking", ledgerEntryType
+            );
           } else if (ledgerEntryType.equals(MetaLedgerEntryType.DIRECTORY_NODE)) {
-            logger.warn("Ignoring ledger entry type {}", ledgerEntryType);
+            logger.warn("Ignoring DeletedNode ledger entry type {}", ledgerEntryType);
           } else if (ledgerEntryType.equals(MetaLedgerEntryType.NFTOKEN_OFFER)) {
             handleMetaLedgerObject((MetaNfTokenOfferObject) finalFields);
           } else {
-            throw new RuntimeException("Unhandled ledger entry type: " + ledgerEntryType);
+            throw new RuntimeException("Unhandled DeletedNode FinalFields ledger entry type: " + ledgerEntryType);
           }
         }
       );

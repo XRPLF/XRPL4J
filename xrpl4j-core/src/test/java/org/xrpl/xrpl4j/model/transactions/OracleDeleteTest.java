@@ -37,6 +37,25 @@ class OracleDeleteTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(oracleDelete, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    OracleDelete oracleDelete = baseBuilder()
+      .putUnknownFields("Foo", "Bar")
+      .build();
+    String json = "\n" +
+      "{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"TransactionType\": \"OracleDelete\",\n" +
+      "  \"Account\": \"rp4pqYgrTAtdPHuZd1ZQWxrzx45jxYcZex\",\n" +
+      "  \"OracleDocumentID\": 1,\n" +
+      "  \"Fee\": \"12\",\n" +
+      "  \"Sequence\": 391,\n" +
+      "  \"SigningPubKey\": \"" + ED_PUBLIC_KEY_HEX + "\"\n" +
+      "}";
+
+    assertCanSerializeAndDeserialize(oracleDelete, json);
+  }
+
   private static ImmutableOracleDelete.Builder baseBuilder() {
     return OracleDelete.builder()
       .account(Address.of("rp4pqYgrTAtdPHuZd1ZQWxrzx45jxYcZex"))

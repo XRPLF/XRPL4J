@@ -134,6 +134,39 @@ class XChainClaimTest extends AbstractJsonTest {
     assertCanSerializeAndDeserialize(attestation, json);
   }
 
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    XChainClaim attestation = baseBuilder()
+      .destinationTag(UnsignedInteger.ONE)
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = String.format("{\n" +
+      "  \"Foo\" : \"Bar\",\n" +
+      "  \"Account\": \"rahDmoXrtPdh7sUdrPjini3gcnTVYjbjjw\",\n" +
+      "  \"Amount\": \"10000\",\n" +
+      "  \"Fee\": \"12\",\n" +
+      "  \"Sequence\": 1,\n" +
+      "  \"SigningPubKey\": %s,\n" +
+      "  \"TransactionType\": \"XChainClaim\",\n" +
+      "  \"XChainClaimID\": \"13f\",\n" +
+      "  \"Destination\": \"rahDmoXrtPdh7sUdrPjini3gcnTVYjbjjw\",\n" +
+      "  \"DestinationTag\": 1,\n" +
+      "  \"XChainBridge\": {\n" +
+      "    \"LockingChainDoor\": \"rMAXACCrp3Y8PpswXcg3bKggHX76V3F8M4\",\n" +
+      "    \"LockingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    },\n" +
+      "    \"IssuingChainDoor\": \"rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh\",\n" +
+      "    \"IssuingChainIssue\": {\n" +
+      "      \"currency\": \"XRP\"\n" +
+      "    }\n" +
+      "  }\n" +
+      "}", ED_PUBLIC_KEY.base16Value());
+
+    assertCanSerializeAndDeserialize(attestation, json);
+  }
+
   private ImmutableXChainClaim.Builder baseBuilder() {
     return XChainClaim.builder()
       .account(Address.of("rahDmoXrtPdh7sUdrPjini3gcnTVYjbjjw"))

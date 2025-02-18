@@ -160,7 +160,6 @@ public class PaymentChannelIT extends AbstractIT {
       .destination(destinationKeyPair.publicKey().deriveAddress())
       .settleDelay(UnsignedInteger.ONE)
       .publicKey(sourceKeyPair.publicKey().base16Value())
-      //.cancelAfter(this.instantToXrpTimestamp(Instant.now().plus(Duration.ofMinutes(1))))
       .signingPublicKey(sourceKeyPair.publicKey())
       .build();
 
@@ -284,7 +283,6 @@ public class PaymentChannelIT extends AbstractIT {
       .destination(destinationKeyPair.publicKey().deriveAddress())
       .settleDelay(UnsignedInteger.ONE)
       .publicKey(sourceKeyPair.publicKey().base16Value())
-      .cancelAfter(this.instantToXrpTimestamp(Instant.now().plus(Duration.ofMinutes(60))))
       .signingPublicKey(sourceKeyPair.publicKey())
       .build();
 
@@ -315,7 +313,7 @@ public class PaymentChannelIT extends AbstractIT {
     assertThat(paymentChannel.amount()).isEqualTo(paymentChannelCreate.amount());
     assertThat(paymentChannel.settleDelay()).isEqualTo(paymentChannelCreate.settleDelay());
     assertThat(paymentChannel.publicKeyHex()).isNotEmpty().get().isEqualTo(paymentChannelCreate.publicKey());
-    assertThat(paymentChannel.cancelAfter()).isNotEmpty().get().isEqualTo(paymentChannelCreate.cancelAfter().get());
+    assertThat(paymentChannel.cancelAfter()).isEmpty();
 
     PayChannelObject payChannelObject = scanForPayChannelObject(sourceKeyPair, destinationKeyPair);
     assertThatEntryEqualsObjectFromAccountObjects(payChannelObject);

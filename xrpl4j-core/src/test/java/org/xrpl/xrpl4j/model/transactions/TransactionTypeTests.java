@@ -22,17 +22,14 @@ package org.xrpl.xrpl4j.model.transactions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.ArgumentsProvider;
-import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Unit tests for {@link TransactionType}.
@@ -40,8 +37,9 @@ import org.junit.jupiter.params.provider.NullSource;
 public class TransactionTypeTests {
 
   @ParameterizedTest
-  @ArgumentsSource(value = TransactionTypeValidArgumentProvider.class)
-  public void shouldReturnTransactionTypeForValidValues(String value) {
+  @EnumSource
+  public void shouldReturnTransactionTypeForValidValues(TransactionType type) {
+    String value = type.value();
     TransactionType transactionType = TransactionType.forValue(value);
     assertNotNull(transactionType);
     assertTrue(transactionType instanceof TransactionType);
@@ -50,28 +48,9 @@ public class TransactionTypeTests {
   @EmptySource
   @NullSource
   @ParameterizedTest
-  @ArgumentsSource(value = TransactionTypeInvalidArgumentProvider.class)
+  @ValueSource(strings = {"bla", "blaaa", "123"})
   public void shouldThrowIllegalArgumentExceptionForInvalidValues(String value) {
-    assertThrows(IllegalArgumentException.class, () -> TransactionType.forValue(value),
-      "No matching TransactionType enum value for String value " + value);
-  }
-
-  public static class TransactionTypeValidArgumentProvider implements ArgumentsProvider {
-
-    @Override
-    public java.util.stream.Stream<? extends Arguments> provideArguments(ExtensionContext context) {
-      return java.util.stream.Stream.of(TransactionType.values()).map(TransactionType::value).map(Arguments::of);
-    }
-
-  }
-
-  public static class TransactionTypeInvalidArgumentProvider implements ArgumentsProvider {
-
-    @Override
-    public java.util.stream.Stream<? extends Arguments> provideArguments(ExtensionContext context) {
-      return java.util.stream.Stream.of("bla", "blaaa", "123").map(Arguments::of);
-    }
-
+    assertThat(TransactionType.forValue(value)).isEqualTo(TransactionType.UNKNOWN);
   }
 
   @Test
@@ -114,5 +93,6 @@ public class TransactionTypeTests {
     assertThat(TransactionType.XCHAIN_CREATE_BRIDGE.value()).isEqualTo("XChainCreateBridge");
     assertThat(TransactionType.XCHAIN_CREATE_CLAIM_ID.value()).isEqualTo("XChainCreateClaimID");
     assertThat(TransactionType.XCHAIN_MODIFY_BRIDGE.value()).isEqualTo("XChainModifyBridge");
+    assertThat(TransactionType.UNKNOWN.value()).isEqualTo("Unknown");
   }
 }

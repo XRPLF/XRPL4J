@@ -1,7 +1,5 @@
 package org.xrpl.xrpl4j.model.transactions;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
@@ -21,7 +19,7 @@ class AmmWithdrawTest extends AbstractJsonTest {
 
     String json = "{\n" +
       "    \"Account\" : \"rJVUeRqDFNs2xqA7ncVE6ZoAhPUoaJJSQm\",\n" +
-      "    \"LPTokensIn\" : " + objectMapper.writeValueAsString(withdraw.lpTokensIn()) + "," +
+      "    \"LPTokenIn\" : " + objectMapper.writeValueAsString(withdraw.lpTokensIn()) + "," +
       "    \"Asset\" : " + objectMapper.writeValueAsString(withdraw.asset()) + "," +
       "    \"Asset2\" : " + objectMapper.writeValueAsString(withdraw.asset2()) + "," +
       "    \"Fee\" : \"10\",\n" +
@@ -43,7 +41,7 @@ class AmmWithdrawTest extends AbstractJsonTest {
 
     String json = "{\n" +
       "    \"Account\" : \"rJVUeRqDFNs2xqA7ncVE6ZoAhPUoaJJSQm\",\n" +
-      "    \"LPTokensIn\" : \"10\"," +
+      "    \"LPTokenIn\" : \"10\"," +
       "    \"Asset\" : " + objectMapper.writeValueAsString(withdraw.asset()) + "," +
       "    \"Asset2\" : " + objectMapper.writeValueAsString(withdraw.asset2()) + "," +
       "    \"Fee\" : \"10\",\n" +
@@ -171,7 +169,7 @@ class AmmWithdrawTest extends AbstractJsonTest {
       "        \"issuer\" : \"rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd\",\n" +
       "        \"value\" : \"5\"\n" +
       "    },\n" +
-      "    \"LPTokensIn\" : " + objectMapper.writeValueAsString(withdraw.lpTokensIn()) + "," +
+      "    \"LPTokenIn\" : " + objectMapper.writeValueAsString(withdraw.lpTokensIn()) + "," +
       "    \"Asset\" : " + objectMapper.writeValueAsString(withdraw.asset()) + "," +
       "    \"Asset2\" : " + objectMapper.writeValueAsString(withdraw.asset2()) + "," +
       "    \"Fee\" : \"10\",\n" +
@@ -204,6 +202,30 @@ class AmmWithdrawTest extends AbstractJsonTest {
       "    \"Asset2\" : " + objectMapper.writeValueAsString(withdraw.asset2()) + "," +
       "    \"Fee\" : \"10\",\n" +
       "    \"Flags\" : " + AmmWithdrawFlags.LIMIT_LP_TOKEN + ",\n" +
+      "    \"Sequence\" : 0,\n" +
+      "    \"SigningPubKey\" : \"02356E89059A75438887F9FEE2056A2890DB82A68353BE9C0C0C8F89C0018B37FC\",\n" +
+      "    \"TransactionType\" : \"AMMWithdraw\"\n" +
+      "}";
+
+    assertCanSerializeAndDeserialize(withdraw, json);
+  }
+
+  @Test
+  void testJsonWithUnknownFields() throws JSONException, JsonProcessingException {
+    AmmWithdraw withdraw = baseBuilder()
+      .flags(AmmWithdrawFlags.LP_TOKEN)
+      .lpTokensIn(lpTokensIn())
+      .putUnknownFields("Foo", "Bar")
+      .build();
+
+    String json = "{\n" +
+      "    \"Foo\" : \"Bar\",\n" +
+      "    \"Account\" : \"rJVUeRqDFNs2xqA7ncVE6ZoAhPUoaJJSQm\",\n" +
+      "    \"LPTokenIn\" : " + objectMapper.writeValueAsString(withdraw.lpTokensIn()) + "," +
+      "    \"Asset\" : " + objectMapper.writeValueAsString(withdraw.asset()) + "," +
+      "    \"Asset2\" : " + objectMapper.writeValueAsString(withdraw.asset2()) + "," +
+      "    \"Fee\" : \"10\",\n" +
+      "    \"Flags\" : " + AmmWithdrawFlags.LP_TOKEN + ",\n" +
       "    \"Sequence\" : 0,\n" +
       "    \"SigningPubKey\" : \"02356E89059A75438887F9FEE2056A2890DB82A68353BE9C0C0C8F89C0018B37FC\",\n" +
       "    \"TransactionType\" : \"AMMWithdraw\"\n" +
