@@ -23,7 +23,6 @@ package org.xrpl.xrpl4j.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +37,7 @@ import org.xrpl.xrpl4j.model.jackson.ObjectMapperFactory;
 import org.xrpl.xrpl4j.model.ledger.LedgerObject;
 import org.xrpl.xrpl4j.model.transactions.Transaction;
 
-public class AbstractJsonTest {
+public abstract class AbstractJsonTest {
 
   protected Logger logger = LoggerFactory.getLogger(this.getClass());
   protected ObjectMapper objectMapper;

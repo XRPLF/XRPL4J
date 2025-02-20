@@ -23,6 +23,7 @@ package org.xrpl.xrpl4j.model.transactions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedLong;
 import org.immutables.value.Value;
@@ -118,4 +119,14 @@ public interface PaymentChannelCreate extends Transaction {
   @JsonProperty("DestinationTag")
   Optional<UnsignedInteger> destinationTag();
 
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default PaymentChannelCreate normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.PAYMENT_CHANNEL_CREATE);
+    return this;
+  }
 }

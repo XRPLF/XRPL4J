@@ -23,6 +23,7 @@ package org.xrpl.xrpl4j.model.transactions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
@@ -94,5 +95,14 @@ public interface OfferCreate extends Transaction {
   @JsonProperty("Expiration")
   Optional<UnsignedInteger> expiration();
 
-
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default OfferCreate normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.OFFER_CREATE);
+    return this;
+  }
 }

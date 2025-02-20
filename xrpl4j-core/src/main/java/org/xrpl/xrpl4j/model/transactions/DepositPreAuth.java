@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
-import org.immutables.value.Value.Derived;
 import org.xrpl.xrpl4j.model.flags.TransactionFlags;
 
 import java.util.Optional;
@@ -92,5 +91,16 @@ public interface DepositPreAuth extends Transaction {
     Preconditions.checkArgument((authorize().isPresent() || unauthorize().isPresent()) &&
         !(authorize().isPresent() && unauthorize().isPresent()),
       "The DepositPreAuth transaction must include either Authorize or Unauthorize, but not both.");
+  }
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default DepositPreAuth normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.DEPOSIT_PRE_AUTH);
+    return this;
   }
 }

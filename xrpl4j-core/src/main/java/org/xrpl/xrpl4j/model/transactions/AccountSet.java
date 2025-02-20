@@ -517,4 +517,15 @@ public interface AccountSet extends Transaction {
       return value;
     }
   }
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default AccountSet normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.ACCOUNT_SET);
+    return this;
+  }
 }

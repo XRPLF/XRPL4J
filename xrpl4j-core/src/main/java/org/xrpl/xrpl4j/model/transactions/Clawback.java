@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 import org.xrpl.xrpl4j.model.flags.TransactionFlags;
@@ -51,5 +52,15 @@ public interface Clawback extends Transaction {
   @JsonProperty("Amount")
   IssuedCurrencyAmount amount();
 
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default Clawback normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.CLAWBACK);
+    return this;
+  }
 
 }

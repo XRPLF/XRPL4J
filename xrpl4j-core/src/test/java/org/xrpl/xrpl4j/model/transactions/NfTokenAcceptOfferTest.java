@@ -55,7 +55,7 @@ public class NfTokenAcceptOfferTest {
       .fee(XrpCurrencyAmount.ofDrops(100))
       .build())
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("PLease specify one offer for direct mode and both offers for brokered mode.");
+      .hasMessage("Please specify one offer for direct mode and both offers for brokered mode.");
   }
 
   @Test

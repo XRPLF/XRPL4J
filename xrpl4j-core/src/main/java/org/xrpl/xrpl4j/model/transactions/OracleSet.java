@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
@@ -97,4 +98,15 @@ public interface OracleSet extends Transaction {
    */
   @JsonProperty("PriceDataSeries")
   List<PriceDataWrapper> priceDataSeries();
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default OracleSet normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.ORACLE_SET);
+    return this;
+  }
 }

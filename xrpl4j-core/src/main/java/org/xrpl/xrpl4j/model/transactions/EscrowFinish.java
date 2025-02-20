@@ -9,9 +9,9 @@ package org.xrpl.xrpl4j.model.transactions;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,14 +33,11 @@ import com.ripple.cryptoconditions.CryptoConditionReader;
 import com.ripple.cryptoconditions.CryptoConditionWriter;
 import com.ripple.cryptoconditions.Fulfillment;
 import com.ripple.cryptoconditions.PreimageSha256Fulfillment;
-import com.ripple.cryptoconditions.PreimageSha256Fulfillment.AbstractPreimageSha256Fulfillment;
 import com.ripple.cryptoconditions.der.DerEncodingException;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xrpl.xrpl4j.model.flags.TransactionFlags;
-import org.xrpl.xrpl4j.model.immutables.FluentCompareTo;
-import org.xrpl.xrpl4j.model.transactions.AccountSet.AccountSetFlag;
 
 import java.util.Arrays;
 import java.util.Base64;
@@ -361,4 +358,14 @@ public interface EscrowFinish extends Transaction {
     }
   }
 
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default EscrowFinish normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.ESCROW_FINISH);
+    return this;
+  }
 }

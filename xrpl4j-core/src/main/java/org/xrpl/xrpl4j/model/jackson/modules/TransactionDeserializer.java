@@ -32,8 +32,8 @@ import org.xrpl.xrpl4j.model.transactions.UnlModify;
 import java.io.IOException;
 
 /**
- * Custom deserializer for {@link Transaction}s, which deserializes to a specific {@link Transaction} type
- * based on the TransactionType JSON field.
+ * Custom deserializer for instances of {@link Transaction} that deserialize to a specific {@link Transaction} type
+ * based on the`TransactionType` JSON field.
  */
 public class TransactionDeserializer extends StdDeserializer<Transaction> {
 
@@ -52,12 +52,12 @@ public class TransactionDeserializer extends StdDeserializer<Transaction> {
     TransactionType transactionType = TransactionType.forValue(objectNode.get("TransactionType").asText());
     final Class<? extends Transaction> transactionTypeClass = Transaction.typeMap.inverse().get(transactionType);
 
-    // Fixes #590 by removing the `Account` property from any incoming `UnlModify` JSON about to be deserialized. 
-    // This fixes #590 because the JSON returned by the rippled/clio API v1 has a bug where the account value in 
-    // `UnlModify` transactions is an empty string. When this value is deserialized, an exception is thrown because 
-    // the empty string value is not a valid `Address`. By removing the property from incoming JSON, the Java value 
-    // for the `Account` property is always set to ACCOUNT_ZERO via a default method. One other side effect of this 
-    // fix is that `Account` property will not be errantly added to `unknownFields map of the ultimate Java object,
+    // Fixes #590 by removing the `Account` property from any incoming `UnlModify` JSON about to be deserialized.
+    // This fixes #590 because the JSON returned by the rippled/clio API v1 has a bug where the account value in
+    // `UnlModify` transactions is an empty string. When this value is deserialized, an exception is thrown because
+    // the empty string value is not a valid `Address`. By removing the property from incoming JSON, the Java value
+    // for the `Account` property is always set to ACCOUNT_ZERO via a default method. One other side effect of this
+    // fix is that `Account` property will not be errantly added to `unknownFields` map of the ultimate Java object,
     // which is incorrect.
     if (UnlModify.class.isAssignableFrom(transactionTypeClass)) {
       objectNode.remove("Account");

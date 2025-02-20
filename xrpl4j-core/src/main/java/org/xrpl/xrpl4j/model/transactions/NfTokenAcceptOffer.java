@@ -114,7 +114,7 @@ public interface NfTokenAcceptOffer extends Transaction {
   @Value.Check
   default void brokerFeeNotPresentInDirectModeAndAtleastOneOfferPresent() {
     Preconditions.checkState(buyOffer().isPresent() || sellOffer().isPresent(),
-      "PLease specify one offer for direct mode and both offers for brokered mode.");
+      "Please specify one offer for direct mode and both offers for brokered mode.");
 
     if ((buyOffer().isPresent() || sellOffer().isPresent()) &&
       !(buyOffer().isPresent() && sellOffer().isPresent())) {
@@ -137,4 +137,14 @@ public interface NfTokenAcceptOffer extends Transaction {
     return TransactionFlags.EMPTY;
   }
 
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default NfTokenAcceptOffer normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.NFTOKEN_ACCEPT_OFFER);
+    return this;
+  }
 }

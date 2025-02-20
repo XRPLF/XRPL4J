@@ -23,6 +23,7 @@ package org.xrpl.xrpl4j.model.transactions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import org.immutables.value.Value;
 import org.xrpl.xrpl4j.model.flags.TransactionFlags;
@@ -75,5 +76,16 @@ public interface EscrowCancel extends Transaction {
    */
   @JsonProperty("OfferSequence")
   UnsignedInteger offerSequence();
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default EscrowCancel normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.ESCROW_CANCEL);
+    return this;
+  }
 
 }

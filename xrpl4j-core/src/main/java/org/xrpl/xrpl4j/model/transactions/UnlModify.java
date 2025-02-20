@@ -23,6 +23,7 @@ package org.xrpl.xrpl4j.model.transactions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import org.immutables.value.Value;
 import org.xrpl.xrpl4j.model.client.common.LedgerIndex;
@@ -91,4 +92,15 @@ public interface UnlModify extends Transaction {
    */
   @JsonProperty("UNLModifyValidator")
   String unlModifyValidator();
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default UnlModify normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.UNL_MODIFY);
+    return this;
+  }
 }

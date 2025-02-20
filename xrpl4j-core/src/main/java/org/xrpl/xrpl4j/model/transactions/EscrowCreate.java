@@ -132,4 +132,15 @@ public interface EscrowCreate extends Transaction {
       );
     }
   }
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default EscrowCreate normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.ESCROW_CREATE);
+    return this;
+  }
 }

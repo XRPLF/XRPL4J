@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
 import org.xrpl.xrpl4j.model.flags.AmmDepositFlags;
 import org.xrpl.xrpl4j.model.ledger.Issue;
@@ -105,4 +106,15 @@ public interface AmmDeposit extends Transaction {
    */
   @JsonProperty("TradingFee")
   Optional<TradingFee> tradingFee();
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default AmmDeposit normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.AMM_DEPOSIT);
+    return this;
+  }
 }

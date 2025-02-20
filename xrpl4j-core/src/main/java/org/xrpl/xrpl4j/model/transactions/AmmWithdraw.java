@@ -99,4 +99,14 @@ public interface AmmWithdraw extends Transaction {
   @JsonProperty("LPTokenIn")
   Optional<CurrencyAmount> lpTokensIn();
 
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default AmmWithdraw normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.AMM_WITHDRAW);
+    return this;
+  }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 import org.xrpl.xrpl4j.model.flags.TransactionFlags;
@@ -58,4 +59,14 @@ public interface AmmDelete extends Transaction {
   @JsonProperty("Asset2")
   Issue asset2();
 
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default AmmDelete normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.AMM_DELETE);
+    return this;
+  }
 }

@@ -23,6 +23,7 @@ package org.xrpl.xrpl4j.model.transactions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import org.immutables.value.Value;
 import org.xrpl.xrpl4j.model.flags.TransactionFlags;
@@ -83,4 +84,15 @@ public interface SignerListSet extends Transaction {
   @JsonProperty("SignerEntries")
   List<SignerEntryWrapper> signerEntries();
 
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default SignerListSet normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.SIGNER_LIST_SET);
+    return this;
+  }
+  
 }

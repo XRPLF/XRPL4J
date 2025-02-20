@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import org.immutables.value.Value;
 import org.xrpl.xrpl4j.model.client.common.LedgerIndex;
@@ -152,4 +153,15 @@ public interface SetFee extends Transaction {
    */
   @JsonProperty("LedgerSequence")
   Optional<LedgerIndex> ledgerSequence();
+
+  /**
+   * Immutables Check to ensure property state after construction.
+   */
+  @Value.Check
+  default SetFee normalize() {
+    Preconditions.checkState(!unknownFields().containsKey("TransactionType"));
+    Preconditions.checkState(!unknownFields().containsKey("Account"));
+    Preconditions.checkState(transactionType() == TransactionType.SET_FEE);
+    return this;
+  }
 }
