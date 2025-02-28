@@ -181,7 +181,7 @@ public class STObjectType extends SerializedType<STObjectType> {
       if (field.name().equals(OBJECT_END_MARKER)) {
         break;
       }
-      JsonNode value = parser.readFieldValue(field).toJson();
+      JsonNode value = parser.readFieldValue(field).toJson(field);
       JsonNode mapped = definitionsService.mapFieldRawValueToSpecialization(field.name(), value.asText())
         .map(TextNode::new)
         .map(JsonNode.class::cast)

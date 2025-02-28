@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.common.base.Strings;
 import com.google.common.primitives.UnsignedLong;
 import org.xrpl.xrpl4j.codec.addresses.ByteUtils;
 import org.xrpl.xrpl4j.codec.addresses.UnsignedByte;
@@ -50,6 +51,7 @@ class AmountType extends SerializedType<AmountType> {
   public static final String ZERO_CURRENCY_AMOUNT_HEX = "8000000000000000";
   public static final int NATIVE_AMOUNT_BYTE_LENGTH = 8;
   public static final int CURRENCY_AMOUNT_BYTE_LENGTH = 48;
+  public static final int MPT_AMOUNT_BYTE_LENGTH = 33;
   private static final int MAX_IOU_PRECISION = 16;
 
   /**
@@ -142,14 +144,23 @@ class AmountType extends SerializedType<AmountType> {
 
   @Override
   public AmountType fromParser(BinaryParser parser) {
-    boolean isXrp = !parser.peek().isNthBitSet(1);
-    int numBytes = isXrp ? NATIVE_AMOUNT_BYTE_LENGTH : CURRENCY_AMOUNT_BYTE_LENGTH;
+    UnsignedByte nextByte = parser.peek();
+    int numBytes;
+    if (nextByte.isNthBitSet(1)) {
+      numBytes = CURRENCY_AMOUNT_BYTE_LENGTH;
+    } else {
+      boolean isMpt = nextByte.isNthBitSet(3);
+
+      numBytes = isMpt ? MPT_AMOUNT_BYTE_LENGTH : NATIVE_AMOUNT_BYTE_LENGTH;
+    }
+
     return new AmountType(parser.read(numBytes));
   }
 
   @Override
   public AmountType fromJson(JsonNode value) throws JsonProcessingException {
     if (value.isValueNode()) {
+      // XRP Amount
       assertXrpIsValid(value.asText());
 
       final boolean isValueNegative = value.asText().startsWith("-");
@@ -166,22 +177,46 @@ class AmountType extends SerializedType<AmountType> {
         rawBytes[0] |= 0x40;
       }
       return new AmountType(UnsignedByteArray.of(rawBytes));
+    } else if (!value.has("mpt_issuance_id")) {
+      // IOU Amount
+      Amount amount = objectMapper.treeToValue(value, Amount.class);
+      BigDecimal number = new BigDecimal(amount.value());
+
+      UnsignedByteArray result = number.unscaledValue().equals(BigInteger.ZERO) ?
+        UnsignedByteArray.fromHex(ZERO_CURRENCY_AMOUNT_HEX) :
+        getAmountBytes(number);
+
+      UnsignedByteArray currency = new CurrencyType().fromJson(value.get("currency")).value();
+      UnsignedByteArray issuer = new AccountIdType().fromJson(value.get("issuer")).value();
+
+      result.append(currency);
+      result.append(issuer);
+
+      return new AmountType(result);
+    } else {
+      // MPT Amount
+      MptAmount amount = objectMapper.treeToValue(value, MptAmount.class);
+
+      if (FluentCompareTo.is(amount.unsignedLongValue()).greaterThan(UnsignedLong.valueOf(Long.MAX_VALUE))) {
+        throw new IllegalArgumentException("Invalid MPT amount. Maximum MPT value is (2^63 - 1)");
+      }
+
+      UnsignedByteArray amountBytes =  UnsignedByteArray.fromHex(
+        ByteUtils.padded(
+          amount.unsignedLongValue().toString(16),
+          16 // <-- 64 / 4
+        )
+      );
+      UnsignedByteArray issuanceIdBytes = new UInt192Type().fromJson(new TextNode(amount.mptIssuanceId())).value();
+
+      // MPT Amounts always have 0110000 as its first byte.
+      int leadingByte = amount.isNegative() ? 0x20 : 0x60;
+      UnsignedByteArray result = UnsignedByteArray.of(UnsignedByte.of(leadingByte));
+      result.append(amountBytes);
+      result.append(issuanceIdBytes);
+
+      return new AmountType(result);
     }
-
-    Amount amount = objectMapper.treeToValue(value, Amount.class);
-    BigDecimal number = new BigDecimal(amount.value());
-
-    UnsignedByteArray result = number.unscaledValue().equals(BigInteger.ZERO) ?
-      UnsignedByteArray.fromHex(ZERO_CURRENCY_AMOUNT_HEX) :
-      getAmountBytes(number);
-
-    UnsignedByteArray currency = new CurrencyType().fromJson(value.get("currency")).value();
-    UnsignedByteArray issuer = new AccountIdType().fromJson(value.get("issuer")).value();
-
-    result.append(currency);
-    result.append(issuer);
-
-    return new AmountType(result);
   }
 
   private UnsignedByteArray getAmountBytes(BigDecimal number) {
@@ -213,7 +248,23 @@ class AmountType extends SerializedType<AmountType> {
         value = value.negate();
       }
       return new TextNode(value.toString());
+    } else if (this.isMpt()) {
+      BinaryParser parser = new BinaryParser(this.toHex());
+      // We know the first byte already based on this.isMpt()
+      UnsignedByte leadingByte = parser.read(1).get(0);
+      boolean isNegative = !leadingByte.isNthBitSet(2);
+      UnsignedLong amount = parser.readUInt64();
+      UnsignedByteArray issuanceId = new UInt192Type().fromParser(parser).value();
+
+      String amountBase10 = amount.toString(10);
+      MptAmount mptAmount = MptAmount.builder()
+        .value(isNegative ? "-" + amountBase10 : amountBase10)
+        .mptIssuanceId(issuanceId.hexValue())
+        .build();
+
+      return objectMapper.valueToTree(mptAmount);
     } else {
+      // Must be IOU if it's not XRP or MPT
       BinaryParser parser = new BinaryParser(this.toHex());
       UnsignedByteArray mantissa = parser.read(8);
       final SerializedType<?> currency = new CurrencyType().fromParser(parser);
@@ -250,9 +301,16 @@ class AmountType extends SerializedType<AmountType> {
    *
    * @return {@code true} if this AmountType is native; {@code false} otherwise.
    */
-  private boolean isNative() {
-    // 1st bit in 1st byte is set to 0 for native XRP
-    return (toBytes()[0] & 0x80) == 0;
+  public boolean isNative() {
+    // 1st bit in 1st byte is set to 0 for native XRP, 3rd bit is also 0.
+    byte leadingByte = toBytes()[0];
+    return (leadingByte & 0x80) == 0 && (leadingByte & 0x20) == 0;
+  }
+
+  public boolean isMpt() {
+    // 1st bit in 1st byte is 0, and 3rd bit is 1
+    byte leadingByte = toBytes()[0];
+    return (leadingByte & 0x80) == 0 && (leadingByte & 0x20) != 0;
   }
 
   /**
@@ -260,7 +318,7 @@ class AmountType extends SerializedType<AmountType> {
    *
    * @return {@code true} if this AmountType is positive; {@code false} otherwise.
    */
-  private boolean isPositive() {
+  public boolean isPositive() {
     // 2nd bit in 1st byte is set to 1 for positive amounts
     return (toBytes()[0] & 0x40) > 0;
   }

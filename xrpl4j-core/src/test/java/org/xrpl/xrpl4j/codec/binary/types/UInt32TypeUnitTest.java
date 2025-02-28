@@ -33,9 +33,9 @@ public class UInt32TypeUnitTest {
 
   @Test
   void decode() {
-    assertThat(codec.fromHex("00000000").valueOf()).isEqualTo(UnsignedLong.valueOf(0));
-    assertThat(codec.fromHex("0000000F").valueOf()).isEqualTo(UnsignedLong.valueOf(15));
-    assertThat(codec.fromHex("FFFFFFFF").valueOf()).isEqualTo(UnsignedLong.valueOf(4294967295L));
+    assertThat(codec.fromHex("00000000").toHex()).isEqualTo("00000000");
+    assertThat(codec.fromHex("0000000F").toHex()).isEqualTo("0000000F");
+    assertThat(codec.fromHex("FFFFFFFF").toHex()).isEqualTo("FFFFFFFF");
   }
 
   @Test

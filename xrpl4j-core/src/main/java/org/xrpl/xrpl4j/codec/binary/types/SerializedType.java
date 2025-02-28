@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableMap;
 import org.xrpl.xrpl4j.codec.addresses.UnsignedByteArray;
 import org.xrpl.xrpl4j.codec.binary.BinaryCodecObjectMapperFactory;
+import org.xrpl.xrpl4j.codec.binary.definitions.FieldInstance;
 import org.xrpl.xrpl4j.codec.binary.serdes.BinaryParser;
 
 import java.util.Map;
@@ -48,6 +49,7 @@ public abstract class SerializedType<T extends SerializedType<T>> {
       .put("Currency", () -> new CurrencyType())
       .put("Hash128", () -> new Hash128Type())
       .put("Hash160", () -> new Hash160Type())
+      .put("UInt192", () -> new UInt192Type())
       .put("Hash256", () -> new Hash256Type())
       .put("PathSet", () -> new PathSetType())
       .put("STArray", () -> new STArrayType())
@@ -117,14 +119,33 @@ public abstract class SerializedType<T extends SerializedType<T>> {
   }
 
   /**
-   * Obtain a {@link T} using the supplied {@code node}.
+   * Obtain a {@link T} using the supplied {@code node}. Prefer using {@link #fromJson(JsonNode, FieldInstance)} over
+   * this method, as some {@link SerializedType}s require a {@link FieldInstance} to accurately serialize and
+   * deserialize.
    *
    * @param node A {@link JsonNode} to use.
    *
    * @return A {@link T} based upon the information found in {@code node}.
+   *
    * @throws JsonProcessingException if {@code node} is not well-formed JSON.
    */
   public abstract T fromJson(JsonNode node) throws JsonProcessingException;
+
+  /**
+   * Obtain a {@link T} using the supplied {@link JsonNode} as well as a {@link FieldInstance}. Prefer using this method
+   * where possible over {@link #fromJson(JsonNode)}, as some {@link SerializedType}s require a {@link FieldInstance} to
+   * accurately serialize and deserialize.
+   *
+   * @param node          A {@link JsonNode} to serialize to binary.
+   * @param fieldInstance The {@link FieldInstance} describing the field being serialized.
+   *
+   * @return A {@link T}.
+   *
+   * @throws JsonProcessingException If {@code node} is not well-formed JSON.
+   */
+  public T fromJson(JsonNode node, FieldInstance fieldInstance) throws JsonProcessingException {
+    return fromJson(node);
+  }
 
   /**
    * Construct a concrete instance of {@link SerializedType} from the supplied {@code json}.
@@ -189,12 +210,27 @@ public abstract class SerializedType<T extends SerializedType<T>> {
   }
 
   /**
-   * Convert this {@link SerializedType} to a {@link JsonNode}.
+   * Convert this {@link SerializedType} to a {@link JsonNode}. Prefer using {@link #toJson(FieldInstance)} over this
+   * method where possible, as some {@link SerializedType}s require a {@link FieldInstance} to accurately serialize and
+   * deserialize.
    *
    * @return A {@link JsonNode}.
    */
   public JsonNode toJson() {
     return new TextNode(toHex());
+  }
+
+  /**
+   * Convert this {@link SerializedType} to a {@link JsonNode} based on the supplied {@link FieldInstance}. Prefer using
+   * this method where possible over {@link #fromJson(JsonNode)}, as some {@link SerializedType}s require a
+   * {@link FieldInstance} to accurately serialize and deserialize.
+   *
+   * @param fieldInstance A {@link FieldInstance} describing the field being deserialized.
+   *
+   * @return A {@link JsonNode}.
+   */
+  public JsonNode toJson(FieldInstance fieldInstance) {
+    return toJson();
   }
 
   /**

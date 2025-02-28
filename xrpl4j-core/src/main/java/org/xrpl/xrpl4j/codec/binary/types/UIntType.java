@@ -22,6 +22,7 @@ package org.xrpl.xrpl4j.codec.binary.types;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedLong;
 import org.xrpl.xrpl4j.codec.addresses.ByteUtils;
 import org.xrpl.xrpl4j.codec.addresses.UnsignedByteArray;
@@ -31,19 +32,20 @@ import org.xrpl.xrpl4j.codec.addresses.UnsignedByteArray;
  */
 abstract class UIntType<T extends UIntType<T>> extends SerializedType<T> {
 
-  private final UnsignedLong value;
-
   public UIntType(UnsignedLong value, int bitSize) {
     super(UnsignedByteArray.fromHex(ByteUtils.padded(value.toString(16), bitSizeToHexLength(bitSize))));
-    this.value = value;
+  }
+
+  public UIntType(UnsignedByteArray value, int bitSize) {
+    super(UnsignedByteArray.fromHex(ByteUtils.padded(value.hexValue(), bitSizeToHexLength(bitSize))));
+    Preconditions.checkArgument(
+      value.length() == bitSize / 8,
+      String.format("Invalid %s length: %s", this.getClass().getSimpleName(), value.length())
+    );
   }
 
   private static int bitSizeToHexLength(int bitSize) {
     return bitSize / 4;
-  }
-
-  UnsignedLong valueOf() {
-    return value;
   }
 
   @Override

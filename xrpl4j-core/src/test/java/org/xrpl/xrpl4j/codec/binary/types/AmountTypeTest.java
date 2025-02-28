@@ -21,11 +21,14 @@ package org.xrpl.xrpl4j.codec.binary.types;
  */
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.primitives.UnsignedLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
+import org.xrpl.xrpl4j.codec.binary.serdes.BinaryParser;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -217,4 +220,59 @@ class AmountTypeTest extends BaseSerializerTypeTest {
     assertThat(codec.fromJson(json).toHex()).isEqualTo(hex);
   }
 
+  @Test
+  void encodeDecodeMptAmount() {
+    String json = "{\"value\":\"100\",\"mpt_issuance_id\":\"00002403C84A0A28E0190E208E982C352BBD5006600555CF\"}";
+    AmountType fromJson = codec.fromJson(json);
+    assertThat(fromJson.toHex())
+      .isEqualTo("60000000000000006400002403C84A0A28E0190E208E982C352BBD5006600555CF");
+    assertThat(fromJson.toJson().toString()).isEqualTo(json);
+  }
+
+  @Test
+  void encodeDecodeMptAmountNegative() {
+    String json = "{\"value\":\"-100\",\"mpt_issuance_id\":\"00002403C84A0A28E0190E208E982C352BBD5006600555CF\"}";
+    AmountType fromJson = codec.fromJson(json);
+    assertThat(fromJson.toHex())
+      .isEqualTo("20000000000000006400002403C84A0A28E0190E208E982C352BBD5006600555CF");
+    assertThat(fromJson.toJson().toString()).isEqualTo(json);
+  }
+
+  @Test
+  void encodeDecodeLargestAmount() {
+    String json = "{\"value\":\"9223372036854775807\"," +
+      "\"mpt_issuance_id\":\"00002403C84A0A28E0190E208E982C352BBD5006600555CF\"}";
+    AmountType fromJson = codec.fromJson(json);
+    assertThat(fromJson.toHex())
+      .isEqualTo("607FFFFFFFFFFFFFFF00002403C84A0A28E0190E208E982C352BBD5006600555CF");
+    assertThat(fromJson.toJson().toString()).isEqualTo(json);
+  }
+
+  @Test
+  void encodeDecodeLargestAmountNegative() {
+    String json = "{\"value\":\"-9223372036854775807\"," +
+      "\"mpt_issuance_id\":\"00002403C84A0A28E0190E208E982C352BBD5006600555CF\"}";
+    AmountType fromJson = codec.fromJson(json);
+    assertThat(fromJson.toHex())
+      .isEqualTo("207FFFFFFFFFFFFFFF00002403C84A0A28E0190E208E982C352BBD5006600555CF");
+    assertThat(fromJson.toJson().toString()).isEqualTo(json);
+  }
+
+  @Test
+  void encodeMptAmountWithMoreThan63BitAmountThrows() {
+    UnsignedLong maxLongPlusOne = UnsignedLong.valueOf(Long.MAX_VALUE).plus(UnsignedLong.ONE);
+    String json = "{\"value\":\"" + maxLongPlusOne + "\"," +
+      "\"mpt_issuance_id\":\"00002403C84A0A28E0190E208E982C352BBD5006600555CF\"}";
+    assertThatThrownBy(() -> codec.fromJson(json)).isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid MPT amount. Maximum MPT value is (2^63 - 1)");
+  }
+
+  @Test
+  void encodeMptAmountWithMoreThan63BitAmountThrowsNegative() {
+    UnsignedLong maxLongPlusOne = UnsignedLong.valueOf(Long.MAX_VALUE).plus(UnsignedLong.ONE);
+    String json = "{\"value\":\"-" + maxLongPlusOne + "\"," +
+      "\"mpt_issuance_id\":\"00002403C84A0A28E0190E208E982C352BBD5006600555CF\"}";
+    assertThatThrownBy(() -> codec.fromJson(json)).isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid MPT amount. Maximum MPT value is (2^63 - 1)");
+  }
 }
