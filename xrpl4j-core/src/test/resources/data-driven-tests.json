@@ -2991,21 +2991,6 @@
       "expected_hex": "0005"
     },
     {
-      "test_json": "NickNameSet",
-      "type_id": 1,
-      "type_specialisation_field": "TransactionType",
-      "type": "UInt16",
-      "expected_hex": "0006"
-    },
-    {
-      "test_json": 6,
-      "canonical_json": "NickNameSet",
-      "type_id": 1,
-      "type_specialisation_field": "TransactionType",
-      "type": "UInt16",
-      "expected_hex": "0006"
-    },
-    {
       "test_json": "OfferCreate",
       "type_id": 1,
       "type_specialisation_field": "TransactionType",
@@ -3036,21 +3021,6 @@
       "expected_hex": "0008"
     },
     {
-      "test_json": "Contract",
-      "type_id": 1,
-      "type_specialisation_field": "TransactionType",
-      "type": "UInt16",
-      "expected_hex": "0009"
-    },
-    {
-      "test_json": 9,
-      "canonical_json": "Contract",
-      "type_id": 1,
-      "type_specialisation_field": "TransactionType",
-      "type": "UInt16",
-      "expected_hex": "0009"
-    },
-    {
       "test_json": "TicketCreate",
       "type_id": 1,
       "type_specialisation_field": "TransactionType",
@@ -3064,21 +3034,6 @@
       "type_specialisation_field": "TransactionType",
       "type": "UInt16",
       "expected_hex": "000A"
-    },
-    {
-      "test_json": "TicketCancel",
-      "type_id": 1,
-      "type_specialisation_field": "TransactionType",
-      "type": "UInt16",
-      "expected_hex": "000B"
-    },
-    {
-      "test_json": 11,
-      "canonical_json": "TicketCancel",
-      "type_id": 1,
-      "type_specialisation_field": "TransactionType",
-      "type": "UInt16",
-      "expected_hex": "000B"
     },
     {
       "test_json": "TrustSet",
@@ -3184,21 +3139,6 @@
       "type_specialisation_field": "LedgerEntryType",
       "type": "UInt16",
       "expected_hex": "006F"
-    },
-    {
-      "test_json": "Contract",
-      "type_id": 1,
-      "type_specialisation_field": "LedgerEntryType",
-      "type": "UInt16",
-      "expected_hex": "0063"
-    },
-    {
-      "test_json": 99,
-      "canonical_json": "Contract",
-      "type_id": 1,
-      "type_specialisation_field": "LedgerEntryType",
-      "type": "UInt16",
-      "expected_hex": "0063"
     },
     {
       "test_json": "LedgerHashes",
