@@ -80,6 +80,7 @@ public class TransactionTypeTests {
     assertThat(TransactionType.CLAWBACK.value()).isEqualTo("Clawback");
     assertThat(TransactionType.AMM_BID.value()).isEqualTo("AMMBid");
     assertThat(TransactionType.AMM_CREATE.value()).isEqualTo("AMMCreate");
+    assertThat(TransactionType.AMM_CLAWBACK.value()).isEqualTo("AMMClawback");
     assertThat(TransactionType.AMM_DEPOSIT.value()).isEqualTo("AMMDeposit");
     assertThat(TransactionType.AMM_VOTE.value()).isEqualTo("AMMVote");
     assertThat(TransactionType.AMM_WITHDRAW.value()).isEqualTo("AMMWithdraw");

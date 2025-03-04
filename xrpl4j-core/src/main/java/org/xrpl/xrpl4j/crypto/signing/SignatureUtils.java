@@ -34,6 +34,7 @@ import org.xrpl.xrpl4j.model.transactions.AccountDelete;
 import org.xrpl.xrpl4j.model.transactions.AccountSet;
 import org.xrpl.xrpl4j.model.transactions.Address;
 import org.xrpl.xrpl4j.model.transactions.AmmBid;
+import org.xrpl.xrpl4j.model.transactions.AmmClawback;
 import org.xrpl.xrpl4j.model.transactions.AmmCreate;
 import org.xrpl.xrpl4j.model.transactions.AmmDelete;
 import org.xrpl.xrpl4j.model.transactions.AmmDeposit;
@@ -391,6 +392,10 @@ public class SignatureUtils {
       transactionWithSignature = OracleDelete.builder().from((OracleDelete) transaction)
         .transactionSignature(signature)
         .build();
+    } else if (AmmClawback.class.isAssignableFrom(transaction.getClass())) {
+      transactionWithSignature = AmmClawback.builder().from((AmmClawback) transaction)
+          .transactionSignature(signature)
+          .build();
     } else {
       // Should never happen, but will in a unit test if we miss one.
       throw new IllegalArgumentException("Signing fields could not be added to the transaction.");
@@ -602,6 +607,10 @@ public class SignatureUtils {
       transactionWithSignatures = OracleDelete.builder().from((OracleDelete) transaction)
         .signers(signers)
         .build();
+    } else if (AmmClawback.class.isAssignableFrom(transaction.getClass())) {
+      transactionWithSignatures = AmmClawback.builder().from((AmmClawback) transaction)
+          .signers(signers)
+          .build();
     } else {
       // Should never happen, but will in a unit test if we miss one.
       throw new IllegalArgumentException("Signing fields could not be added to the transaction.");

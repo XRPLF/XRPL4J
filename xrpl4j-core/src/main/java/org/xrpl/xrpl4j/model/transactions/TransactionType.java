@@ -338,6 +338,7 @@ public enum TransactionType {
   @Beta
   ORACLE_DELETE("OracleDelete"),
 
+  AMM_CLAWBACK("AMMClawback"),
   /**
    * The {@link TransactionType} for any transaction that is unrecognized/unsupported by xrpl4j.
    */

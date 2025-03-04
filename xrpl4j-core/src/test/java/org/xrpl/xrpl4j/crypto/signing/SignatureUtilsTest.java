@@ -61,6 +61,7 @@ import org.xrpl.xrpl4j.model.transactions.AccountDelete;
 import org.xrpl.xrpl4j.model.transactions.AccountSet;
 import org.xrpl.xrpl4j.model.transactions.Address;
 import org.xrpl.xrpl4j.model.transactions.AmmBid;
+import org.xrpl.xrpl4j.model.transactions.AmmClawback;
 import org.xrpl.xrpl4j.model.transactions.AmmCreate;
 import org.xrpl.xrpl4j.model.transactions.AmmDelete;
 import org.xrpl.xrpl4j.model.transactions.AmmDeposit;
@@ -841,6 +842,59 @@ public class SignatureUtilsTest {
       .build();
 
     addSignatureToTransactionHelper(ammCreate);
+  }
+
+  @Test
+  void addSignatureToAmmClawback() {
+    AmmClawback ammClawback = AmmClawback.builder()
+        .account(sourcePublicKey.deriveAddress())
+        .holder(sourcePublicKey.deriveAddress())
+        .amount(
+            IssuedCurrencyAmount.builder()
+                .currency("TST")
+                .issuer(Address.of("rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd"))
+                .value("25")
+                .build()
+        )
+        .asset(Issue.XRP)
+        .asset2(
+            Issue.builder()
+                .issuer(Address.of("rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd"))
+                .currency("TST")
+                .build()
+        )
+        .fee(XrpCurrencyAmount.ofDrops(10))
+        .sequence(UnsignedInteger.valueOf(6))
+        .signingPublicKey(sourcePublicKey)
+        .build();
+
+    addSignatureToTransactionHelper(ammClawback);
+  }
+
+  @Test
+  void addMultiSignaturesToAmmClawback() {
+    AmmClawback ammClawback = AmmClawback.builder()
+        .account(sourcePublicKey.deriveAddress())
+        .holder(sourcePublicKey.deriveAddress())
+        .amount(
+            IssuedCurrencyAmount.builder()
+                .currency("TST")
+                .issuer(Address.of("rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd"))
+                .value("25")
+                .build()
+        )
+        .asset(Issue.XRP)
+        .asset2(
+            Issue.builder()
+                .issuer(Address.of("rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd"))
+                .currency("TST")
+                .build()
+        )
+        .fee(XrpCurrencyAmount.ofDrops(10))
+        .sequence(UnsignedInteger.valueOf(6))
+        .build();
+
+    addMultiSignatureToTransactionHelper(ammClawback);
   }
 
   @Test

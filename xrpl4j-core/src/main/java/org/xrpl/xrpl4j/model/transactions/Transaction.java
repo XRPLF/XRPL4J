@@ -94,6 +94,7 @@ public interface Transaction {
       .put(ImmutableOracleSet.class, TransactionType.ORACLE_SET)
       .put(ImmutableOracleDelete.class, TransactionType.ORACLE_DELETE)
       .put(ImmutableUnknownTransaction.class, TransactionType.UNKNOWN)
+      .put(ImmutableAmmClawback.class, TransactionType.AMM_CLAWBACK)
       .build();
 
   /**
