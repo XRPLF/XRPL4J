@@ -26,6 +26,8 @@ import org.xrpl.xrpl4j.client.faucet.FaucetClient;
 import org.xrpl.xrpl4j.client.faucet.FundAccountRequest;
 import org.xrpl.xrpl4j.model.transactions.Address;
 
+import java.util.Optional;
+
 /**
  * XRPL testnet environment.
  */
@@ -40,6 +42,11 @@ public abstract class TestnetEnvironment extends AbstractXrplEnvironment impleme
   @Override
   public void fundAccount(Address classicAddress) {
     faucetClient.fundAccount(FundAccountRequest.of(classicAddress));
+  }
+
+  @Override
+  public Optional<String> explorerUrl() {
+    return Optional.of("https://testnet.xrpl.org");
   }
 
 }

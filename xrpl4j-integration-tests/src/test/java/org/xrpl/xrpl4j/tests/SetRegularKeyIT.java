@@ -78,10 +78,7 @@ public class SetRegularKeyIT extends AbstractIT {
     );
     SubmitResult<SetRegularKey> setResult = xrplClient.submit(signedSetRegularKey);
     assertThat(setResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "SetRegularKey transaction successful. https://testnet.xrpl.org/transactions/{}",
-      setResult.transactionResult().hash()
-    );
+    logSubmitResult(setResult);
 
     //////////////////////////
     // Verify that the SetRegularKey transaction worked by submitting empty
@@ -144,10 +141,7 @@ public class SetRegularKeyIT extends AbstractIT {
     );
     SubmitResult<SetRegularKey> setResult = xrplClient.submit(signedSetRegularKey);
     assertThat(setResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "SetRegularKey transaction successful. https://testnet.xrpl.org/transactions/{}",
-      setResult.transactionResult().hash()
-    );
+    logSubmitResult(setResult);
 
     //////////////////////////
     // Verify that the SetRegularKey transaction worked by submitting empty
@@ -189,10 +183,7 @@ public class SetRegularKeyIT extends AbstractIT {
     );
     SubmitResult<SetRegularKey> removeResult = xrplClient.submit(signedRemoveRegularKey);
     assertThat(removeResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "SetRegularKey transaction successful. https://testnet.xrpl.org/transactions/{}",
-      removeResult.transactionResult().hash()
-    );
+    logSubmitResult(removeResult);
 
     AccountInfoResult accountInfoAfterRemoving = scanForResult(
       () -> getValidatedAccountInfo(wallet.publicKey().deriveAddress()),

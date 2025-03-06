@@ -9,9 +9,9 @@ package org.xrpl.xrpl4j.tests;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,7 +71,7 @@ public class SubmitPaymentIT extends AbstractIT {
     SingleSignedTransaction<Payment> signedPayment = signatureService.sign(sourceKeyPair.privateKey(), payment);
     SubmitResult<Payment> result = xrplClient.submit(signedPayment);
     assertThat(result.engineResult()).isEqualTo(SUCCESS_STATUS);
-    logger.info("Payment successful: https://testnet.xrpl.org/transactions/{}", result.transactionResult().hash());
+    logSubmitResult(result);
 
     TransactionResult<Payment> validatedPayment = this.scanForResult(
       () -> this.getValidatedTransaction(result.transactionResult().hash(), Payment.class)
@@ -107,7 +107,7 @@ public class SubmitPaymentIT extends AbstractIT {
     SingleSignedTransaction<Payment> signedPayment = signatureService.sign(senderKeyPair.privateKey(), payment);
     SubmitResult<Payment> result = xrplClient.submit(signedPayment);
     assertThat(result.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info("Payment successful: https://testnet.xrpl.org/transactions/{}", result.transactionResult().hash());
+    logSubmitResult(result);
 
     this.scanForResult(() -> this.getValidatedTransaction(result.transactionResult().hash(), Payment.class));
   }

@@ -84,10 +84,7 @@ public class CheckIT extends AbstractIT {
     );
     SubmitResult<CheckCreate> response = xrplClient.submit(signedCheckCreate);
     assertThat(response.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "CheckCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      response.transactionResult().hash()
-    );
+    logSubmitResult(response);
 
     //////////////////////
     // Poll the ledger for the source wallet's account objects, and validate that the created Check makes
@@ -122,10 +119,7 @@ public class CheckIT extends AbstractIT {
     );
     SubmitResult<CheckCash> cashResponse = xrplClient.submit(signedCheckCash);
     assertThat(cashResponse.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "CheckCash transaction successful: https://testnet.xrpl.org/transactions/{}",
-      cashResponse.transactionResult().hash()
-    );
+    logSubmitResult(cashResponse);
 
     //////////////////////
     // Validate that the destination account balance increases by the check amount minus fees
@@ -178,10 +172,7 @@ public class CheckIT extends AbstractIT {
     );
     SubmitResult<CheckCreate> response = xrplClient.submit(signedCheckCreate);
     assertThat(response.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "CheckCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      response.transactionResult().hash()
-    );
+    logSubmitResult(response);
 
     //////////////////////
     // Poll the ledger for the source wallet's account objects, and validate that the created Check makes
@@ -212,10 +203,7 @@ public class CheckIT extends AbstractIT {
     );
     SubmitResult<CheckCancel> cancelResult = xrplClient.submit(signedCheckCancel);
     assertThat(cancelResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "CheckCancel transaction successful: https://testnet.xrpl.org/transactions/{}",
-      cancelResult.transactionResult().hash()
-    );
+    logSubmitResult(cancelResult);
 
     //////////////////////
     // Validate that the Check does not exist after cancelling
@@ -259,10 +247,7 @@ public class CheckIT extends AbstractIT {
     );
     SubmitResult<CheckCreate> response = xrplClient.submit(signedCheckCreate);
     assertThat(response.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "CheckCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      response.transactionResult().hash()
-    );
+    logSubmitResult(response);
 
     CheckObject checkObject = (CheckObject) this
       .scanForResult(
@@ -294,10 +279,7 @@ public class CheckIT extends AbstractIT {
     );
     SubmitResult<CheckCancel> cancelResult = xrplClient.submit(signedCheckCancel);
     assertThat(cancelResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "CheckCancel transaction successful: https://testnet.xrpl.org/transactions/{}",
-      cancelResult.transactionResult().hash()
-    );
+    logSubmitResult(cancelResult);
 
     //////////////////////
     // Validate that the Check does not exist after cancelling

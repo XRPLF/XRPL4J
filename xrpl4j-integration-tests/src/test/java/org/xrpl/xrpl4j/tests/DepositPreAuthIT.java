@@ -84,10 +84,7 @@ public class DepositPreAuthIT extends AbstractIT {
     SubmitResult<DepositPreAuth> result = xrplClient.submit(singedDepositPreAuth);
 
     assertThat(result.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "DepositPreauth transaction successful. https://testnet.xrpl.org/transactions/{}",
-      result.transactionResult().hash()
-    );
+    logSubmitResult(result);
 
     /////////////////////////
     // Validate that the DepositPreAuthObject was added to the receiver's account objects
@@ -135,10 +132,7 @@ public class DepositPreAuthIT extends AbstractIT {
 
     SubmitResult<Payment> paymentResult = xrplClient.submit(singedPayment);
     assertThat(result.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "Payment transaction successful. https://testnet.xrpl.org/transactions/{}",
-      paymentResult.transactionResult().hash()
-    );
+    logSubmitResult(paymentResult);
 
     /////////////////////////
     // Validate that the Payment was included in a validated ledger
@@ -269,10 +263,8 @@ public class DepositPreAuthIT extends AbstractIT {
     );
     SubmitResult<AccountSet> accountSetResult = xrplClient.submit(signedAccountSet);
     assertThat(accountSetResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "AccountSet to enable Deposit Preauth successful. https://testnet.xrpl.org/transactions/{}",
-      accountSetResult.transactionResult().hash()
-    );
+    logSubmitResult(accountSetResult, "Enable Deposit Preauth");
+
     return this.scanForResult(
       () -> this.getValidatedAccountInfo(wallet.publicKey().deriveAddress()),
       accountInfo -> accountInfo.accountData().flags().lsfDepositAuth()

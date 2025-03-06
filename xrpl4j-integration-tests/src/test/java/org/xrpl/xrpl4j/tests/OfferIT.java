@@ -115,12 +115,8 @@ public class OfferIT extends AbstractIT {
     SubmitResult<OfferCreate> response = xrplClient.submit(signedOfferCreate);
     assertThat(response.transactionResult().transaction().flags().tfFullyCanonicalSig()).isTrue();
     assertThat(response.transactionResult().transaction().flags().tfSell()).isTrue();
-
     assertThat(response.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "OfferCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      response.transactionResult().hash()
-    );
+    logSubmitResult(response);
 
     BookOffersResult result = xrplClient.bookOffers(
       BookOffersRequestParams.builder()
@@ -191,10 +187,7 @@ public class OfferIT extends AbstractIT {
     assertThat(response.transactionResult().transaction().flags().tfSell()).isTrue();
 
     assertThat(response.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "OfferCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      response.transactionResult().hash()
-    );
+    logSubmitResult(response);
 
     //////////////////////
     // Poll the ledger for the source purchaser's offers, and validate the expected offer exists
@@ -246,10 +239,7 @@ public class OfferIT extends AbstractIT {
     );
     SubmitResult<OfferCreate> response = xrplClient.submit(signedOfferCreate);
     assertThat(response.engineResult()).isEqualTo("tecKILLED");
-    logger.info(
-      "OfferCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      response.transactionResult().hash()
-    );
+    logSubmitResult(response);
 
     //////////////////////
     // Poll the ledger for the source purchaser's offers, and validate no offers or balances (ripple states) exist
@@ -295,10 +285,7 @@ public class OfferIT extends AbstractIT {
     );
     SubmitResult<OfferCreate> response = xrplClient.submit(signedOfferCreate);
     assertThat(response.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "OfferCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      response.transactionResult().hash()
-    );
+    logSubmitResult(response);
 
     //////////////////////
     // Poll the ledger for the source purchaser's balances, and validate the expected currency balance exists

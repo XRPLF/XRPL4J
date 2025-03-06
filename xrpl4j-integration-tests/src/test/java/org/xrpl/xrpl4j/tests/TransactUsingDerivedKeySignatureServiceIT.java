@@ -96,7 +96,7 @@ public class TransactUsingDerivedKeySignatureServiceIT extends AbstractIT {
       payment);
     SubmitResult<Payment> result = xrplClient.submit(signedTransaction);
     assertThat(result.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info("Payment successful: https://testnet.xrpl.org/transactions/{}", result.transactionResult().hash());
+    logSubmitResult(result);
 
     this.scanForResult(() -> this.getValidatedTransaction(result.transactionResult().hash(), Payment.class));
   }
@@ -138,7 +138,7 @@ public class TransactUsingDerivedKeySignatureServiceIT extends AbstractIT {
       = derivedKeySignatureService.sign(sourceKeyMetadata, payment);
     SubmitResult<Payment> result = xrplClient.submit(transactionWithSignature);
     assertThat(result.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info("Payment successful: https://testnet.xrpl.org/transactions/" + result.transactionResult().hash());
+    logSubmitResult(result);
 
     this.scanForResult(() -> this.getValidatedTransaction(result.transactionResult().hash(), Payment.class));
   }
@@ -243,10 +243,7 @@ public class TransactUsingDerivedKeySignatureServiceIT extends AbstractIT {
     );
     SubmitResult<SignerListSet> signerListSetResult = xrplClient.submit(signedSignerListSet);
     assertThat(signerListSetResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "SignerListSet transaction successful: https://testnet.xrpl.org/transactions/{}",
-      signerListSetResult.transactionResult().hash()
-    );
+    logSubmitResult(signerListSetResult);
 
     /////////////////////////////
     // Then wait until the transaction enters a validated ledger and the source account's signer list
@@ -296,9 +293,6 @@ public class TransactUsingDerivedKeySignatureServiceIT extends AbstractIT {
 
     SubmitMultiSignedResult<Payment> paymentResult = xrplClient.submitMultisigned(multiSigPayment);
     assertThat(paymentResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "Payment transaction successful: https://testnet.xrpl.org/transactions/{}",
-      paymentResult.transaction().hash()
-    );
+    logSubmitResult(paymentResult);
   }
 }

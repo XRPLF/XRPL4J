@@ -74,11 +74,7 @@ public class TicketIT extends AbstractIT {
     );
     SubmitResult<TicketCreate> submitResult = xrplClient.submit(signedCreate);
     assertThat(submitResult.engineResult()).isEqualTo(SUCCESS_STATUS);
-
-    logInfo(
-      submitResult.transactionResult().transaction().transactionType(),
-      submitResult.transactionResult().hash()
-    );
+    logSubmitResult(submitResult);
 
     Hash256 ticketId = this.scanForResult(
       () -> this.getValidatedTransaction(
@@ -130,10 +126,6 @@ public class TicketIT extends AbstractIT {
     );
     SubmitResult<AccountSet> accountSetResult = xrplClient.submit(signedAccountSet);
     assertThat(accountSetResult.engineResult()).isEqualTo(SUCCESS_STATUS);
-
-    logInfo(
-      accountSetResult.transactionResult().transaction().transactionType(),
-      accountSetResult.transactionResult().hash()
-    );
+    logSubmitResult(accountSetResult);
   }
 }

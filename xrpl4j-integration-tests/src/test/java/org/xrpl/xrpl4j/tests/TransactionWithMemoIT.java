@@ -70,11 +70,7 @@ public class TransactionWithMemoIT extends AbstractIT {
     SubmitResult<Payment> result = xrplClient.submit(signedTransaction);
     assertThat(result.engineResult()).isEqualTo(SUCCESS_STATUS);
     assertThat(signedTransaction.hash()).isEqualTo(result.transactionResult().hash());
-
-    logInfo(
-      result.transactionResult().transaction().transactionType(),
-      result.transactionResult().hash()
-    );
+    logSubmitResult(result);
 
     TransactionResult<Payment> validatedPayment = this.scanForResult(
       () -> this.getValidatedTransaction(
@@ -117,11 +113,7 @@ public class TransactionWithMemoIT extends AbstractIT {
 
     assertThat(result.engineResult()).isEqualTo(SUCCESS_STATUS);
     assertThat(signedTransaction.hash()).isEqualTo(result.transactionResult().hash());
-
-    logInfo(
-      result.transactionResult().transaction().transactionType(),
-      result.transactionResult().hash()
-    );
+    logSubmitResult(result);
 
     TransactionResult<Payment> validatedPayment = this.scanForResult(
       () -> this.getValidatedTransaction(

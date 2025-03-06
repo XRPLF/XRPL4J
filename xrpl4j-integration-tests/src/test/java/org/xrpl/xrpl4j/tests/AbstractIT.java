@@ -65,6 +65,7 @@ import org.xrpl.xrpl4j.model.client.ledger.LedgerRequestParams;
 import org.xrpl.xrpl4j.model.client.ledger.LedgerResult;
 import org.xrpl.xrpl4j.model.client.path.RipplePathFindRequestParams;
 import org.xrpl.xrpl4j.model.client.path.RipplePathFindResult;
+import org.xrpl.xrpl4j.model.client.transactions.SubmitMultiSignedResult;
 import org.xrpl.xrpl4j.model.client.transactions.SubmitResult;
 import org.xrpl.xrpl4j.model.client.transactions.TransactionRequestParams;
 import org.xrpl.xrpl4j.model.client.transactions.TransactionResult;
@@ -76,7 +77,6 @@ import org.xrpl.xrpl4j.model.transactions.IssuedCurrencyAmount;
 import org.xrpl.xrpl4j.model.transactions.Payment;
 import org.xrpl.xrpl4j.model.transactions.Transaction;
 import org.xrpl.xrpl4j.model.transactions.TransactionResultCodes;
-import org.xrpl.xrpl4j.model.transactions.TransactionType;
 import org.xrpl.xrpl4j.model.transactions.TrustSet;
 import org.xrpl.xrpl4j.model.transactions.XrpCurrencyAmount;
 import org.xrpl.xrpl4j.tests.environment.XrplEnvironment;
@@ -118,18 +118,6 @@ public abstract class AbstractIT {
     this.xrplClient = xrplEnvironment.getXrplClient();
     this.signatureService = this.constructSignatureService();
     this.derivedKeySignatureService = this.constructDerivedKeySignatureService();
-  }
-
-  /**
-   * Helper function to print log statements for Integration Tests which is network specific.
-   *
-   * @param transactionType {@link TransactionType} to be logged for the executed transaction.
-   * @param hash            {@link Hash256} to be logged for the executed transaction.
-   */
-  protected void logInfo(TransactionType transactionType, Hash256 hash) {
-    String url = System.getProperty("useTestnet") != null ? "https://testnet.xrpl.org/transactions/" :
-      (System.getProperty("useDevnet") != null ? "https://devnet.xrpl.org/transactions/" : "");
-    logger.info("{} transaction successful: {}{}", transactionType.value(), url, hash);
   }
 
   protected KeyPair createRandomAccountEd25519() {
@@ -483,11 +471,7 @@ public abstract class AbstractIT {
     );
     SubmitResult<TrustSet> trustSetSubmitResult = xrplClient.submit(signedTrustSet);
     assertThat(trustSetSubmitResult.engineResult()).isEqualTo(TransactionResultCodes.TES_SUCCESS);
-
-    logInfo(
-      trustSetSubmitResult.transactionResult().transaction().transactionType(),
-      trustSetSubmitResult.transactionResult().hash()
-    );
+    logSubmitResult(trustSetSubmitResult);
 
     return scanForResult(
       () -> getValidatedAccountLines(trustlineLimitAmount.issuer(), counterpartyAddress),
@@ -575,6 +559,7 @@ public abstract class AbstractIT {
       );
       SubmitResult<Payment> paymentResult = xrplClient.submit(signedPayment);
       assertThat(paymentResult.transactionResult().hash()).isEqualTo(signedPayment.hash());
+      logSubmitResult(paymentResult);
 
       paymentEngineResult = paymentResult.engineResult();
       if (!paymentResult.engineResult().equals(expectedEngineResult)) {
@@ -591,11 +576,6 @@ public abstract class AbstractIT {
         );
         continue; // <-- Try again, up to the loop guard above.
       }
-
-      logInfo(
-        paymentResult.transactionResult().transaction().transactionType(),
-        paymentResult.transactionResult().hash()
-      );
 
       this.scanForResult(
         () -> getValidatedTransaction(
@@ -714,10 +694,10 @@ public abstract class AbstractIT {
   protected Instant getMinExpirationTime() {
     LedgerResult result = getValidatedLedger();
     Instant closeTime = xrpTimestampToInstant(
-        result.ledger().closeTime()
-            .orElseThrow(() ->
-                new RuntimeException("Ledger close time must be present to calculate a minimum expiration time.")
-            )
+      result.ledger().closeTime()
+        .orElseThrow(() ->
+          new RuntimeException("Ledger close time must be present to calculate a minimum expiration time.")
+        )
     );
 
     Instant now = Instant.now();
@@ -726,5 +706,77 @@ public abstract class AbstractIT {
 
   private void logAccountCreation(Address address) {
     logger.info("Generated wallet with ClassicAddress={})", address);
+  }
+
+  /**
+   * Logs a {@link SubmitResult}, accounting for the current test environment.
+   *
+   * @param submitResult An instance of {@link SubmitResult}.
+   */
+  protected void logSubmitResult(final SubmitResult<? extends Transaction> submitResult) {
+    this.logSubmitResult(submitResult, "");
+  }
+
+  /**
+   * Logs a {@link SubmitResult}, accounting for the current test environment.
+   *
+   * @param submitResult An instance of {@link SubmitResult}.
+   * @param extraMessage Extra messaging that the test author supplies.
+   */
+  protected void logSubmitResult(final SubmitResult<? extends Transaction> submitResult, final String extraMessage) {
+    final Class<? extends Transaction> transactionClass = submitResult.transactionResult().transaction().getClass();
+    final String hash = submitResult.transactionResult().hash().value();
+    this.logSubmitResultHelper(transactionClass, submitResult.status().orElse("n/a"), hash, extraMessage);
+  }
+
+  /**
+   * Logs a {@link SubmitResult}, accounting for the current test environment.
+   *
+   * @param submitMultiSignedResult An instance of {@link SubmitMultiSignedResult}.
+   */
+  protected void logSubmitResult(final SubmitMultiSignedResult<? extends Transaction> submitMultiSignedResult) {
+    final Class<? extends Transaction> transactionClass
+      = submitMultiSignedResult.transaction().transaction().getClass();
+    final String hash = submitMultiSignedResult.transaction().hash().value();
+    this.logSubmitResultHelper(transactionClass, submitMultiSignedResult.status().orElse("n/a"), hash, "");
+  }
+
+  /**
+   * Helper function to properly log a {@link SubmitResult}, accounting for the current test environment.
+   *
+   * @param transactionClass The {@link Class} of the transaction being logged.
+   * @param status           A {@link String} representing the status of the transaction.
+   * @param hash             A {@link String} representing the hash of the transaction.
+   * @param extraMessage     A {@link String} representing an extra message passed by a test author.
+   */
+  private void logSubmitResultHelper(
+    final Class<? extends Transaction> transactionClass,
+    final String status,
+    final String hash,
+    final String extraMessage
+  ) {
+    Objects.requireNonNull(transactionClass);
+    Objects.requireNonNull(hash);
+
+    final String transactionClassSimpleName = transactionClass.getSimpleName().startsWith("Immutable") ?
+      transactionClass.getSimpleName().substring("Immutable".length()) : transactionClass.getSimpleName();
+
+    final String loggingOutput = xrplEnvironment.explorerUrl()
+      .map(explorerUrl -> {
+        final String transactionExplorerUrl = String.format("%s/transactions/%s", explorerUrl, hash);
+        return String.format("%s transaction(status=%s):%s %s",
+          transactionClassSimpleName,
+          status,
+          extraMessage.isEmpty() ? "" : " " + extraMessage,
+          transactionExplorerUrl);
+      })
+      .orElseGet(() -> String.format("%s transaction(status=%s):%s hash=%s",
+        transactionClassSimpleName,
+        status,
+        extraMessage.isEmpty() ? "" : " " + extraMessage,
+        hash
+      ));
+
+    logger.info(loggingOutput);
   }
 }

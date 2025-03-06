@@ -301,10 +301,7 @@ public class NfTokenIT extends AbstractIT {
     SubmitResult<NfTokenMint> mintSubmitResult = xrplClient.submit(signedMint);
     assertThat(mintSubmitResult.engineResult()).isEqualTo(TransactionResultCodes.TES_SUCCESS);
     assertThat(signedMint.hash()).isEqualTo(mintSubmitResult.transactionResult().hash());
-    logger.info(
-      "NFTokenMint transaction successful: https://testnet.xrpl.org/transactions/{}",
-      mintSubmitResult.transactionResult().hash()
-    );
+    logSubmitResult(mintSubmitResult);
 
     NfTokenObject nfToken = scanForNfToken(keyPair, uri);
     logger.info("NFT was minted successfully.");

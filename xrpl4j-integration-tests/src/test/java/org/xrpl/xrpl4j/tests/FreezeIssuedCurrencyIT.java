@@ -530,10 +530,7 @@ public class FreezeIssuedCurrencyIT extends AbstractIT {
     SingleSignedTransaction<AccountSet> signedTrustSet = signatureService.sign(wallet.privateKey(), accountSet);
     SubmitResult<AccountSet> trustSetSubmitResult = xrplClient.submit(signedTrustSet);
     assertThat(trustSetSubmitResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "AccountSet transaction successful: https://testnet.xrpl.org/transactions/{}",
-      trustSetSubmitResult.transactionResult().hash()
-    );
+    logSubmitResult(trustSetSubmitResult);
 
     scanForResult(
       () -> getValidatedAccountInfo(wallet.publicKey().deriveAddress()),
@@ -590,10 +587,7 @@ public class FreezeIssuedCurrencyIT extends AbstractIT {
     SingleSignedTransaction<TrustSet> signedTrustSet = signatureService.sign(issuerKeyPair.privateKey(), trustSet);
     SubmitResult<TrustSet> trustSetSubmitResult = xrplClient.submit(signedTrustSet);
     assertThat(trustSetSubmitResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "TrustSet transaction successful: https://testnet.xrpl.org/transactions/{}",
-      trustSetSubmitResult.transactionResult().hash()
-    );
+    logSubmitResult(trustSetSubmitResult);
 
     return scanForResult(
       () -> getValidatedAccountLines(issuerKeyPair.publicKey().deriveAddress(),
@@ -643,10 +637,7 @@ public class FreezeIssuedCurrencyIT extends AbstractIT {
     SingleSignedTransaction<AccountSet> signedTrustSet = signatureService.sign(issuerKeyPair.privateKey(), accountSet);
     SubmitResult<AccountSet> transactionResult = xrplClient.submit(signedTrustSet);
     assertThat(transactionResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "TrustSet transaction successful: https://testnet.xrpl.org/transactions/{}",
-      transactionResult.transactionResult().hash()
-    );
+    logSubmitResult(transactionResult);
 
     return scanForResult(
       () -> getValidatedAccountInfo(issuerKeyPair.publicKey().deriveAddress()),

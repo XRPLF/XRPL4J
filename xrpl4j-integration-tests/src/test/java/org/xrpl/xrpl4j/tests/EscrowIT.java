@@ -90,10 +90,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowCreate> createResult = xrplClient.submit(signedEscrowCreate);
     assertThat(createResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      createResult.transactionResult().hash()
-    );
+    logSubmitResult(createResult);
 
     //////////////////////
     // Then wait until the transaction gets committed to a validated ledger
@@ -138,10 +135,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowFinish> finishResult = xrplClient.submit(signedEscrowFinish);
     assertThat(finishResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowFinish transaction successful: https://testnet.xrpl.org/transactions/{}",
-      finishResult.transactionResult().hash()
-    );
+    logSubmitResult(finishResult);
 
     //////////////////////
     // Wait for the EscrowFinish to get applied to a validated ledger
@@ -195,10 +189,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowCreate> createResult = xrplClient.submit(signedEscrowCreate);
     assertThat(createResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      createResult.transactionResult().hash()
-    );
+    logSubmitResult(createResult);
 
     //////////////////////
     // Then wait until the transaction gets committed to a validated ledger
@@ -249,10 +240,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowCancel> cancelResult = xrplClient.submit(signedEscrowCancel);
     assertThat(cancelResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowCancel transaction successful: https://testnet.xrpl.org/transactions/{}",
-      cancelResult.transactionResult().hash()
-    );
+    logSubmitResult(cancelResult);
 
     //////////////////////
     // Wait until the transaction enters a validated ledger
@@ -306,10 +294,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowCreate> createResult = xrplClient.submit(signedEscrowCreate);
     assertThat(createResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      createResult.transactionResult().hash()
-    );
+    logSubmitResult(createResult);
 
     //////////////////////
     // Then wait until the transaction gets committed to a validated ledger
@@ -360,10 +345,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowFinish> finishResult = xrplClient.submit(signedEscrowFinish);
     assertThat(finishResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowFinish transaction successful: https://testnet.xrpl.org/transactions/{}",
-      finishResult.transactionResult().hash()
-    );
+    logSubmitResult(finishResult);
 
     //////////////////////
     // Wait until the transaction enters a validated ledger
@@ -418,10 +400,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowCreate> createResult = xrplClient.submit(signedEscrowCreate);
     assertThat(createResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowCreate transaction successful: https://testnet.xrpl.org/transactions/{}",
-      createResult.transactionResult().hash()
-    );
+    logSubmitResult(createResult);
 
     //////////////////////
     // Then wait until the transaction gets committed to a validated ledger
@@ -463,10 +442,7 @@ public class EscrowIT extends AbstractIT {
     );
     SubmitResult<EscrowCancel> cancelResult = xrplClient.submit(signedEscrowCancel);
     assertThat(cancelResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "EscrowCancel transaction successful: https://testnet.xrpl.org/transactions/{}",
-      cancelResult.transactionResult().hash()
-    );
+    logSubmitResult(cancelResult);
 
     //////////////////////
     // Wait until the transaction enters a validated ledger

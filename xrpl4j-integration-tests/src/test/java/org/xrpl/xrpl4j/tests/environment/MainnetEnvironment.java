@@ -23,6 +23,8 @@ package org.xrpl.xrpl4j.tests.environment;
 import org.xrpl.xrpl4j.client.XrplClient;
 import org.xrpl.xrpl4j.model.transactions.Address;
 
+import java.util.Optional;
+
 /**
  * Abstract class representing integration test environment that uses Mainnet as its XRPL network.
  */
@@ -34,6 +36,11 @@ public abstract class MainnetEnvironment extends AbstractXrplEnvironment impleme
   @Override
   public void fundAccount(Address classicAddress) {
     throw new UnsupportedOperationException("funding not supported on mainnet");
+  }
+
+  @Override
+  public Optional<String> explorerUrl() {
+    return Optional.of("https://livenet.xrpl.org");
   }
 
 }

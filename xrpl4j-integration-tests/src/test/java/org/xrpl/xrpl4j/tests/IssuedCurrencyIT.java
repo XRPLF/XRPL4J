@@ -373,10 +373,7 @@ public class IssuedCurrencyIT extends AbstractIT {
     );
     SubmitResult<Payment> paymentResult = xrplClient.submit(signedAliceToBobPayment);
     assertThat(paymentResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "Payment transaction successful: https://testnet.xrpl.org/transactions/{}",
-      paymentResult.transactionResult().hash()
-    );
+    logSubmitResult(paymentResult);
 
     ///////////////////////////
     // Validate that bob and alice's trust line balances have been updated appropriately
@@ -583,10 +580,7 @@ public class IssuedCurrencyIT extends AbstractIT {
     );
     SubmitResult<Payment> paymentResult = xrplClient.submit(signedCharlieToDanielPayment);
     assertThat(paymentResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "Payment transaction successful: https://testnet.xrpl.org/transactions/{}",
-      paymentResult.transactionResult().hash()
-    );
+    logSubmitResult(paymentResult);
 
     ///////////////////////////
     // Validate that everyone's trust line balances have been updated appropriately
@@ -647,10 +641,7 @@ public class IssuedCurrencyIT extends AbstractIT {
     );
     SubmitResult<AccountSet> setResult = xrplClient.submit(signedAccountSet);
     assertThat(setResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "AccountSet transaction successful: https://testnet.xrpl.org/transactions/{}",
-      setResult.transactionResult().hash()
-    );
+    logSubmitResult(setResult);
 
     scanForResult(
       () -> getValidatedAccountInfo(issuerKeyPair.publicKey().deriveAddress()),

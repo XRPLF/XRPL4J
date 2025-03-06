@@ -26,6 +26,7 @@ import org.xrpl.xrpl4j.client.XrplClient;
 import org.xrpl.xrpl4j.model.transactions.Address;
 
 import java.time.Duration;
+import java.util.Optional;
 
 /**
  * Abstraction for the XRP Ledger environment that the integration tests talk to. Provides access to resources need to
@@ -118,4 +119,14 @@ public interface XrplEnvironment {
    */
   void stopLedgerAcceptor();
 
+  /**
+   * An optionally present URL for this environment's explorer. Note this value is optional for environments that have
+   * no explorer configured, such as a local rippled in a docker container.
+   *
+   * @return An optionally-present {@link String} containing the root URL to a ledger explorer that can be used to
+   *   lookup transaction information in a browser.
+   */
+  default Optional<String> explorerUrl() {
+    return Optional.empty();
+  }
 }

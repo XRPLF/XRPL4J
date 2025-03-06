@@ -491,10 +491,7 @@ public class AmmIT extends AbstractIT {
     SingleSignedTransaction<AccountSet> signed = signatureService.sign(issuerKeyPair.privateKey(), accountSet);
     SubmitResult<AccountSet> setResult = xrplClient.submit(signed);
     assertThat(setResult.engineResult()).isEqualTo("tesSUCCESS");
-    logger.info(
-      "AccountSet transaction successful: https://testnet.xrpl.org/transactions/{}",
-      setResult.transactionResult().hash()
-    );
+    logSubmitResult(setResult);
 
     scanForResult(
       () -> getValidatedAccountInfo(issuerKeyPair.publicKey().deriveAddress()),
